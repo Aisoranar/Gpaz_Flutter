@@ -1,0 +1,161 @@
+import 'package:flutter/material.dart';
+
+class FourthTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 20.0),
+              decoration: BoxDecoration(
+                color: Color(0xFF00B7FF),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20.0),
+                  bottomRight: Radius.circular(20.0),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  'EQUIPO GPAZ',
+                  style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Aisor Anaya
+                  _buildTeamMember(
+                    name: 'Aisor Anaya',
+                    role: 'Desarrollador Back-end',
+                    icon: Icons.person,
+                  ),
+
+                  // Ronaldo Romero
+                  _buildTeamMember(
+                    name: 'Ronaldo Romero',
+                    role: 'Desarrollador Front-end',
+                    icon: Icons.person,
+                  ),
+
+                  // Jhonys Rios
+                  _buildTeamMember(
+                    name: 'Ing. Jhonys Rios',
+                    role: 'Director',
+                    icon: Icons.person,
+                  ),
+
+                  // Edwin Duran
+                  _buildTeamMember(
+                    name: 'Ing. Edwin Duran',
+                    role: 'Co-Director',
+                    icon: Icons.person,
+                  ),
+
+                  // Sebastian Romero
+                  _buildTeamMember(
+                    name: 'Sebastian Romero',
+                    role: 'Diseñador Gráfico',
+                    icon: Icons.person,
+                  ),
+
+                  // Juan Gómez
+                  _buildTeamMember(
+                    name: 'Juan Gómez',
+                    role: 'Documentalista Principal',
+                    icon: Icons.person,
+                  ),
+
+                  // Luis Montaña
+                  _buildTeamMember(
+                    name: 'Luis Montaña',
+                    role: 'Documentalista Asociado',
+                    icon: Icons.person,
+                  ),
+
+                  // Agradecimientos
+                  _buildAgradecimientos(),
+
+                  // Resto de tu contenido...
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeamMember({
+    required String name,
+    required String role,
+    required IconData icon,
+  }) {
+    Color iconColor = Colors.blue;
+
+    // Verificar si es el director o el co-director y cambiar el color del icono
+    if (role == 'Director' || role == 'Co-Director') {
+      iconColor = Colors.green; // Puedes cambiar este color a tu preferencia
+    }
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.0),
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: iconColor, // Usar el color determinado según el rol
+            size: 30.0,
+          ),
+          SizedBox(width: 16.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8.0),
+              Text(
+                role,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAgradecimientos() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: Text(
+            'AGRADECIMIENTOS',
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            'Queremos expresar nuestro agradecimiento a los estudiantes del 8vo semestre 2023-B Diurno, cuya valiosa contribución ha sido fundamental para hacer realidad este proyecto.',
+            style: TextStyle(fontSize: 14.0),
+          ),
+        ),
+      ],
+    );
+  }
+}

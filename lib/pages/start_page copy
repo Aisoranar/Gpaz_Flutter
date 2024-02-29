@@ -1,0 +1,116 @@
+// ignore_for_file: sort_child_properties_last
+
+import 'package:flutter/material.dart';
+import 'package:unipaz/pages/auth_page.dart';
+//import 'package:esports/pages/login_page.dart';
+
+class StartPage extends StatelessWidget {
+const StartPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Material App',
+      home: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color.fromARGB(255, 16, 6, 93),
+                Color.fromARGB(255, 22, 9, 122),
+              ],
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+
+              const SizedBox(height: 50),
+              const SizedBox(height: 50),
+              const SizedBox(height: 50),
+              const SizedBox(height: 50),
+              const SizedBox(height: 50),
+
+            const Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Image(
+                        image: AssetImage('Assets/Logo11.png'),
+                        height: 200,
+                      ),
+                    ),
+                  ],
+                ),
+                  
+                const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Instituto Universitario de la Paz",
+                       style: TextStyle(
+                          fontSize: 15,
+                          letterSpacing: 4,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 50),
+                const SizedBox(height: 50),
+
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AuthPage()),
+                    );
+                  },
+                  child: const Text(
+                    'Iniciar Sesión',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    backgroundColor: const Color.fromRGBO(255, 0, 64, 1),
+                    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                    minimumSize: const Size(double.infinity, 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                ),
+
+                    /*
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: const Text('Regístrate',
+                      style: TextStyle(fontSize: 20),),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 65, 7, 255),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 100, vertical: 20),
+                        minimumSize: const Size(double.infinity, 60),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),*/
+                    
+                const SizedBox(height: 50),
+                const SizedBox(height: 50),
+                const SizedBox(height: 50),
+                const SizedBox(height: 50),
+                const SizedBox(height: 50),
+
+            ]
+          ),
+        ),
+      ),
+    );
+  }
+}

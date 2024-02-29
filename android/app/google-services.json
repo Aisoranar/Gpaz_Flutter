@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "933253592657",
+    "project_id": "unipaz-aa94c",
+    "storage_bucket": "unipaz-aa94c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:933253592657:android:9fedb512dd30d9f9666a70",
+        "android_client_info": {
+          "package_name": "com.unipaz.unipaz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "933253592657-ocgg0mulir53gdtmrkm8nug9mhdlmrfn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL83LT8rAkna8g62WZ2SDHYqJOG5CgsW0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "933253592657-ocgg0mulir53gdtmrkm8nug9mhdlmrfn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "933253592657-fs85s57jc9pagierb2ha45sighd3cte7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.unipaz.unipaz"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
