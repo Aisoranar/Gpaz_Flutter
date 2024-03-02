@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:unipaz/components/my_textfield.dart';
 import 'package:unipaz/components/square_tile.dart';
 import 'package:unipaz/conductor/mapconductor.dart';
 
@@ -17,7 +16,46 @@ class MyButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
       ),
-      child: Text('Iniciar sesión'),
+      child: Text(
+        'Iniciar sesión',
+        style: TextStyle(color: Colors.white), // Letra en blanco
+      ),
+    );
+  }
+}
+
+class MyTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final bool obscureText;
+  final Icon prefixIcon;
+  final Color iconColor; // Nuevo parámetro para el color del ícono
+
+  MyTextField({
+    required this.controller,
+    required this.hintText,
+    required this.obscureText,
+    required this.prefixIcon,
+    required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: Icon(
+          prefixIcon.icon,
+          color: iconColor, // Aplicar el color al ícono
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+      ),
     );
   }
 }
@@ -49,16 +87,15 @@ class _LoginPageState extends State<LoginPage> {
         password: passwordController.text,
       );
 
-      Navigator.pop(context); // Cerrar el diálogo de progreso
+      Navigator.pop(context);
 
-      // Redirigir a la página deseada después de iniciar sesión
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => MapConductorPage(
-            userId: '1', // Puedes cambiar esto según el userId real
-            nombre: 'Usuario', // Puedes cambiar esto según el nombre real
-            placa: 'ABC123', // Puedes cambiar esto según la placa real
+            userId: '1',
+            nombre: 'Usuario',
+            placa: 'ABC123',
           ),
         ),
       );
@@ -98,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 16, 6, 93),
+      backgroundColor: const Color.fromARGB(247, 0, 51, 122),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -116,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 50),
+                const SizedBox(height: 80),
                 const Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -141,34 +178,25 @@ class _LoginPageState extends State<LoginPage> {
                   controller: emailController,
                   hintText: 'Correo electrónico',
                   obscureText: false,
-                  prefixIcon: const Icon(Icons.email),
+                  prefixIcon: Icon(Icons.email),
+                  iconColor: Color.fromARGB(247, 0, 51, 122), // Color del ícono
                 ),
                 const SizedBox(height: 10),
                 MyTextField(
                   controller: passwordController,
                   hintText: 'Contraseña',
                   obscureText: true,
-                  prefixIcon: const Icon(Icons.lock),
+                  prefixIcon: Icon(Icons.lock),
+                  iconColor: Color.fromARGB(247, 0, 51, 122), // Color del ícono
                 ),
                 const SizedBox(height: 10),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        '¿Olvidaste tu contraseña?',
-                        style: TextStyle(
-                          color: Color.fromARGB(247, 0, 51, 122),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: 25),
                 MyButton(
                   onTap: signUserIn,
-                  buttonColor: Colors.blue,
+                  buttonColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
                 const SizedBox(height: 50),
                 Padding(
@@ -178,7 +206,7 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(
                         child: Divider(
                           thickness: 0.5,
-                          color: Colors.grey[400],
+                          color: const Color.fromARGB(255, 255, 255, 255),
                         ),
                       ),
                       Padding(
@@ -191,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(
                         child: Divider(
                           thickness: 0.5,
-                          color: Colors.grey[400],
+                          color: Color.fromARGB(255, 254, 253, 253),
                         ),
                       ),
                     ],
@@ -205,26 +233,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const SizedBox(height: 50),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '¿No tienes cuenta?',
-                      style: TextStyle(
-                        color: Color.fromARGB(247, 0, 51, 122),
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      'Regístrate ahora',
-                      style: TextStyle(
-                        color: Color.fromRGBO(0, 0, 0, 0.525),
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

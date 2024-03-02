@@ -66,7 +66,7 @@ class HomePage extends StatelessWidget {
     icon: Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
     itemBuilder: (context) => [
       PopupMenuItem(
-        child: Text('Iniciar Sesión'),
+        child: Text('SOY CONDUCTOR'),
         value: 'login',
       ),
       // Puedes eliminar esta parte para quitar la opción "Cerrar Sesión"
