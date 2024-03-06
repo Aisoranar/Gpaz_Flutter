@@ -1,126 +1,188 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:location/location.dart';
+import 'package:unipaz/notifications/notificationsManager%20.dart';
 
-class MapConductorPage extends StatefulWidget {
-  final String userId;
-  final String nombre;
-  final String placa;
-
-  MapConductorPage({
-    required this.userId,
-    required this.nombre,
-    required this.placa,
-  });
-
+class MapConductor extends StatefulWidget {
   @override
-  _MapConductorPageState createState() => _MapConductorPageState();
+  _MapConductorState createState() => _MapConductorState();
 }
 
-class _MapConductorPageState extends State<MapConductorPage> {
-  late GoogleMapController mapController;
-  List<LatLng> ruta = [];
+class _MapConductorState extends State<MapConductor> {
+  Completer<GoogleMapController> _controller = Completer();
+  late LatLng _user2Location;
+  late bool _locationUpdatesActive;
+  late StreamSubscription<LocationData> _locationSubscription;
+  late Marker _user2Marker;
+
+  @override
+  void initState() {
+    super.initState();
+    _locationUpdatesActive = false;
+    _user2Marker = Marker(
+      markerId: MarkerId('user2Marker'),
+      position: LatLng(0, 0), // Posición inicial, será actualizada en tiempo real
+      infoWindow: InfoWindow(title: 'Usuario 2'),
+    );
+    _getUser2Location();
+  }
+
+  Future<void> _getUser2Location() async {
+    LocationData locationData = await Location().getLocation();
+    setState(() {
+      _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
+      _user2Marker = _user2Marker.copyWith(positionParam: _user2Location);
+    });
+  }
+
+  void _toggleLocationUpdates() {
+    if (_locationUpdatesActive) {
+      _locationSubscription.cancel();
+      _clearUserLocation();
+      notificationsManager.showNotification(
+        'GPS Desactivado',
+        'Se ha desactivado el GPS correctamente.',
+      );
+      notificationsManager.showGlobalNotification(
+        'Bus Desconectado',
+        'El bus ha finalizado el trayecto.',
+      );
+      notificationsManager.showGlobalNotification(
+        'Conductor Finalizó Ruta',
+        'El conductor ha finalizado la ruta.',
+      );
+    } else {
+      _startLocationUpdates();
+      notificationsManager.showNotification(
+        'GPS Activado',
+        'Se ha activado el GPS correctamente.',
+      );
+      notificationsManager.showGlobalNotification(
+        'Bus Conectado',
+        'El bus está en camino. ¡Prepárate!',
+      );
+      notificationsManager.showGlobalNotification(
+        'Conductor en Camino',
+        'El conductor va en camino.',
+      );
+    }
+    setState(() {
+      _locationUpdatesActive = !_locationUpdatesActive;
+    });
+  }
+
+  void _startLocationUpdates() {
+    _locationSubscription =
+        Location().onLocationChanged.listen((LocationData locationData) {
+      setState(() {
+        _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
+        _user2Marker = _user2Marker.copyWith(positionParam: _user2Location);
+      });
+
+      FirebaseFirestore.instance
+          .collection('ubicaciones')
+          .doc('user2')
+          .set({
+        'latitud': locationData.latitude,
+        'longitud': locationData.longitude,
+      });
+    });
+  }
+
+  void _clearUserLocation() {
+    FirebaseFirestore.instance.collection('ubicaciones').doc('user2').delete();
+  }
+
+  void _showOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Selecciona una opción'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Estoy lleno', 'El bus está lleno.');
+                  Navigator.pop(context);
+                },
+                child: Text('Estoy lleno'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Tengo problemas', 'Se ha presentado un problema.');
+                  Navigator.pop(context);
+                },
+                child: Text('Tengo problemas'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _sendNotification(String title, String message) {
+    notificationsManager.showNotification(title, message);
+  }
+
+  @override
+  void dispose() {
+    _locationSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mapa del Conductor'),
-        actions: [
-          PopupMenuButton(
-            onSelected: (value) async {
-              if (value == 'cerrar_sesion') {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacementNamed(context, '/home_page');
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  value: 'cerrar_sesion',
-                  child: Text('Cerrar Sesión'),
-                ),
-              ];
-            },
-          ),
-        ],
+        title: Text('Mapa del Usuario 2'),
       ),
       body: Stack(
         children: [
           GoogleMap(
-            onMapCreated: (controller) {
-              setState(() {
-                mapController = controller;
-              });
-            },
+            mapType: MapType.normal,
             initialCameraPosition: CameraPosition(
-              target: LatLng(7.0652, -73.8545),
-              zoom: 15.0,
+              target: _user2Location,
+              zoom: 14.0,
             ),
-            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-              Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
-            ].toSet(),
-            markers: _createMarkers(),
-            polylines: _createPolylines(),
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            markers: {_user2Marker},
+            myLocationEnabled: true,
+            onCameraMove: (CameraPosition position) {
+              // Puedes agregar lógica adicional al mover el mapa si es necesario
+            },
           ),
           Positioned(
-            bottom: 130.0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Lógica para activar el GPS
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(247, 0, 51, 122),
-                  minimumSize: Size(80, 50),
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  foregroundColor: Colors.white,
-                ),
-                child: Text('Activar GPS', style: TextStyle(fontSize: 18)),
+            bottom: 16.0,
+            left: 16.0,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
               ),
-            ),
-          ),
-          Positioned(
-            top: 20.0,
-            left: 10.0,
-            right: 10.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Bienvenido: ${widget.nombre} Con placa: ${widget.placa}',
-                  style: TextStyle(fontSize: 18, color: const Color.fromARGB(247, 0, 51, 122)),
-                  textAlign: TextAlign.center,
+              onPressed: _toggleLocationUpdates,
+              child: Text(
+                _locationUpdatesActive ? 'DESACTIVAR GPS' : 'ACTIVAR GPS',
+                style: TextStyle(
+                  color: Color.fromARGB(247, 0, 51, 122),
                 ),
-                SizedBox(height: 10),
-              ],
+              ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Set<Marker> _createMarkers() {
-    return Set<Marker>.from(
-      [
-        // ... (tus marcadores)
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      persistentFooterButtons: [
+        ElevatedButton(
+          onPressed: _showOptionsDialog,
+          child: Text('Opciones'),
+        ),
       ],
     );
-  }
-
-  Set<Polyline> _createPolylines() {
-    Set<Polyline> polylines = Set();
-    polylines.add(Polyline(
-      polylineId: PolylineId('ruta'),
-      color: Colors.blue,
-      points: ruta,
-    ));
-    return polylines;
   }
 }
