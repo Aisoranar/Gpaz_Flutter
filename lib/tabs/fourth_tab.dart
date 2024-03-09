@@ -32,14 +32,7 @@ class FourthTab extends StatelessWidget {
                   // Aisor Anaya
                   _buildTeamMember(
                     name: 'Aisor Anaya',
-                    role: 'Desarrollador Back-end',
-                    icon: Icons.person,
-                  ),
-
-                  // Ronaldo Romero
-                  _buildTeamMember(
-                    name: 'Ronaldo Romero',
-                    role: 'Desarrollador Front-end',
+                    role: 'Desarrollador FullStack',
                     icon: Icons.person,
                   ),
 
@@ -47,13 +40,6 @@ class FourthTab extends StatelessWidget {
                   _buildTeamMember(
                     name: 'Ing. Jhonys Rios',
                     role: 'Director',
-                    icon: Icons.person,
-                  ),
-
-                  // Edwin Duran
-                  _buildTeamMember(
-                    name: 'Ing. Edwin Duran',
-                    role: 'Co-Director',
                     icon: Icons.person,
                   ),
 
@@ -66,17 +52,12 @@ class FourthTab extends StatelessWidget {
 
                   // Juan Gómez
                   _buildTeamMember(
-                    name: 'Juan Gómez',
-                    role: 'Documentalista Principal',
+                    name: 'Hadik Chavez',
+                    role: 'Diseñador UI/UX',
                     icon: Icons.person,
                   ),
 
-                  // Luis Montaña
-                  _buildTeamMember(
-                    name: 'Luis Montaña',
-                    role: 'Documentalista Asociado',
-                    icon: Icons.person,
-                  ),
+                  
 
                   // Agradecimientos
                   _buildAgradecimientos(),
@@ -151,7 +132,7 @@ class FourthTab extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Text(
-            'Queremos expresar nuestro agradecimiento a los estudiantes del 8vo semestre 2023-B Diurno, cuya valiosa contribución ha sido fundamental para hacer realidad este proyecto.',
+            'Queremos expresar nuestro agradecimiento a los estudiantes del 9no semestre 2024-A Diurno, cuya valiosa contribución ha sido fundamental para hacer realidad este proyecto.',
             style: TextStyle(fontSize: 14.0),
           ),
         ),
