@@ -32,6 +32,7 @@ class _SecondTabState extends State<SecondTab> {
     _user1Marker = Marker(
       markerId: MarkerId('user1Marker'),
       position: _user1Location,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue), // Icono azul para el usuario 1
       infoWindow: InfoWindow(title: 'Usuario 1'),
     );
   }
@@ -187,6 +188,7 @@ class _SecondTabState extends State<SecondTab> {
             Marker(
               markerId: MarkerId('user2Marker'),
               position: _user2Location!,
+              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen), // Icono verde para el usuario 2
               infoWindow: InfoWindow(title: 'Usuario 2'),
             ),
           if (_myLocationData != null)

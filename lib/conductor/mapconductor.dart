@@ -25,6 +25,7 @@ class _MapConductorState extends State<MapConductor> {
       markerId: MarkerId('user2Marker'),
       position: LatLng(0, 0), // Posición inicial, será actualizada en tiempo real
       infoWindow: InfoWindow(title: 'Usuario 2'),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen), // Especificar el color verde
     );
     _getUser2Location();
   }
