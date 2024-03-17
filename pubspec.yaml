@@ -102,6 +102,9 @@ flutter:
     - Assets/icon/
     - Assets/icon/isologo.jpg
     - Assets/icon/cotsem2.png
+    - Assets/images/
+    - Assets/images/paradas/
+    - Assets/images/paradas/parada_frentedescabezado.jpg
   #   - images/a_dot_ham.jpeg
 
   

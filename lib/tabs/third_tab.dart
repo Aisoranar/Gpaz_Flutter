@@ -9,51 +9,55 @@ class _ThirdTabState extends State<ThirdTab> {
   Map<String, Map<String, dynamic>> routeData = {
     'Parada 1': {
       'description': 'CALLE 52 CRA 12',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 2': {
       'description': 'CALLE 52 CRA 13',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'imagePath': 'Assets/images/paradas/parada_frentedescabezado.jpg',
     },
     'Parada 3': {
-      'description': 'CALLE 52 CRA 22',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'YAMAHA',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 4': {
-      'description': 'CALLE 52 CRA 26',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'CALLE 52 CRA 22',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 5': {
-      'description': 'CALLE 52 CRA 28',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'CALLE 52 CRA 26',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 6': {
-      'description': 'EN POLLO ARABE',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'POLLO ARABE',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 7': {
-      'description': 'INTERCAMBIADOR',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'EL INTERCAMBIADOR',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 8': {
       'description': 'BARRIO YARIMA',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 9': {
-      'description': 'BARRIO YARIMA',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'EL PALMAR',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 10': {
-      'description': 'ENTRADA AL PALMAR',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'BOSQUE DE LA CIRA',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 11': {
-      'description': 'BONANZA',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'LA BONANZA',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 12': {
-      'description': 'RETEN',
-      'imagePath': 'Assets/images/parada_descabezado.jpg',
+      'description': 'EL RETEN',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+    },
+    'Parada 13': {
+      'description': 'UNIPAZ',
+      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
   };
 

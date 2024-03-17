@@ -29,16 +29,19 @@ class _SecondTabState extends State<SecondTab> {
     _getUser1Location();
     _subscribeToLocationUpdates();
     _requestLocationPermission();
-    _user1Marker = Marker(
-      markerId: MarkerId('user1Marker'),
-      position: _user1Location,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue), // Icono azul para el usuario 1
-      infoWindow: InfoWindow(title: 'Usuario 1'),
-    );
   }
 
   Future<void> _getUser1Location() async {
-    _user1Location = LatLng(7.0689, -73.8517);
+    LocationData locationData = await _location.getLocation();
+    setState(() {
+      _user1Location = LatLng(locationData.latitude!, locationData.longitude!);
+      _user1Marker = Marker(
+        markerId: MarkerId('user1Marker'),
+        position: _user1Location,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue), // Icono azul para el usuario 1
+        infoWindow: InfoWindow(title: 'Usuario 1'),
+      );
+    });
   }
 
   void _subscribeToLocationUpdates() {
@@ -83,12 +86,26 @@ class _SecondTabState extends State<SecondTab> {
               'Otra opción seleccionada por el conductor.',
             );
           }
-
-          // Actualizar posición del marcador del usuario 1
-          _user1Marker = _user1Marker.copyWith(positionParam: _user1Location);
         });
       }
     });
+
+    // Suscribirse a las actualizaciones de ubicación del usuario 1
+    _locationSubscription = _location.onLocationChanged.listen((LocationData currentLocation) {
+      setState(() {
+        _myLocationData = currentLocation;
+        if (_myLocationData != null) {
+          _user1Location = LatLng(_myLocationData!.latitude!, _myLocationData!.longitude!);
+          _user1Marker = Marker(
+            markerId: MarkerId('user1Marker'),
+            position: _user1Location,
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue), // Icono azul para el usuario 1
+            infoWindow: InfoWindow(title: 'Usuario 1'),
+          );
+        }
+      });
+    });
+    _locationUpdatesActive = true;
   }
 
   void _requestLocationPermission() async {
@@ -96,69 +113,6 @@ class _SecondTabState extends State<SecondTab> {
     if (status == PermissionStatus.denied) {
       await _location.requestPermission();
     }
-  }
-
-  void _centerMap() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newLatLng(_user1Location));
-  }
-
-  void _toggleLocationUpdates() {
-    if (_locationUpdatesActive) {
-      // Código para desactivar el GPS y borrar la ubicación del usuario
-      _locationSubscription.cancel();
-      _clearUserLocation();  // Nuevo método para borrar la ubicación del usuario
-      notificationsManager.showNotification(
-        'GPS Desactivado',
-        'Se ha desactivado el GPS correctamente.',
-      );
-      notificationsManager.showGlobalNotification(
-        'Bus Desconectado',
-        'El bus ha finalizado el trayecto.',
-      );
-      notificationsManager.showGlobalNotification(
-        'Conductor Finalizó Ruta',
-        'El conductor ha finalizado la ruta.',
-      );
-    } else {
-      _startLocationUpdates();
-      notificationsManager.showNotification(
-        'GPS Activado',
-        'Se ha activado el GPS correctamente.',
-      );
-      notificationsManager.showGlobalNotification(
-        'Bus Conectado',
-        'El bus está en camino. ¡Prepárate!',
-      );
-      notificationsManager.showGlobalNotification(
-        'Conductor en Camino',
-        'El conductor va en camino.',
-      );
-    }
-    setState(() {
-      _locationUpdatesActive = !_locationUpdatesActive;
-    });
-  }
-
-  void _startLocationUpdates() {
-    _locationSubscription =
-        Location().onLocationChanged.listen((LocationData locationData) {
-      FirebaseFirestore.instance
-          .collection('ubicaciones')
-          .doc('user1')  // Cambia 'user1' al identificador correcto
-          .set({
-        'latitud': locationData.latitude,
-        'longitud': locationData.longitude,
-      });
-    });
-  }
-
-  // Nuevo método para borrar la ubicación del usuario
-  void _clearUserLocation() {
-    FirebaseFirestore.instance
-        .collection('ubicaciones')
-        .doc('user1')  // Cambia 'user1' al identificador correcto
-        .delete();
   }
 
   @override
@@ -206,7 +160,6 @@ class _SecondTabState extends State<SecondTab> {
           // Puedes agregar lógica adicional al mover el mapa si es necesario
         },
         gestureRecognizers: Set()
-          ..add(Factory<PanGestureRecognizer>(() => PanGestureRecognizer()))
           ..add(Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()))
           ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer()))
           ..add(Factory<VerticalDragGestureRecognizer>(
