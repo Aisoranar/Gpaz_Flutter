@@ -35,6 +35,7 @@ class _MapConductorState extends State<MapConductor> {
     setState(() {
       _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
       _user2Marker = _user2Marker.copyWith(positionParam: _user2Location);
+      _animateCameraToUser2(); // Animar la cámara para seguir al usuario2
     });
   }
 
@@ -80,6 +81,7 @@ class _MapConductorState extends State<MapConductor> {
       setState(() {
         _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
         _user2Marker = _user2Marker.copyWith(positionParam: _user2Location);
+        _animateCameraToUser2(); // Animar la cámara para seguir al usuario2
       });
 
       FirebaseFirestore.instance
@@ -94,6 +96,11 @@ class _MapConductorState extends State<MapConductor> {
 
   void _clearUserLocation() {
     FirebaseFirestore.instance.collection('ubicaciones').doc('user2').delete();
+    // Cuando se borra la ubicación, también debemos actualizar la ubicación del usuario2 en el mapa del usuario1
+    // Por lo tanto, establecemos la ubicación del usuario2 en null
+    setState(() {
+      _user2Location = LatLng(0, 0);
+    });
   }
 
   void _showOptionsDialog() {
@@ -128,6 +135,16 @@ class _MapConductorState extends State<MapConductor> {
 
   void _sendNotification(String title, String message) {
     notificationsManager.showNotification(title, message);
+  }
+
+  void _animateCameraToUser2() async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(
+        target: _user2Location,
+        zoom: 14.0,
+      ),
+    ));
   }
 
   @override
