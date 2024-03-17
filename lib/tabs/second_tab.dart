@@ -292,7 +292,7 @@ class _SecondTabState extends State<SecondTab> {
         polylineId: PolylineId('ruta'),
         points: points,
         color: Colors.blue,
-        width: 3,
+        width: 6,
       ),
     ]);
   }

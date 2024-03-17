@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-
 import 'package:unipaz/pages/login_page.dart';
-
 import 'package:unipaz/tabs/firts_tab.dart';
 import 'package:unipaz/tabs/fourth_tab.dart';
 import 'package:unipaz/tabs/second_tab.dart';
 import 'package:unipaz/tabs/third_tab.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class HomePage extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
+    FirebaseMessaging.instance.requestPermission(
+      sound: true,
+      badge: true,
+      alert: true,
+      provisional: false,
+    );
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -62,33 +66,22 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildPopupMenuButton(BuildContext context) {
-  return PopupMenuButton(
-    icon: Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
-    itemBuilder: (context) => [
-      PopupMenuItem(
-        child: Text('SOY CONDUCTOR'),
-        value: 'login',
-      ),
-      // Puedes eliminar esta parte para quitar la opción "Cerrar Sesión"
-      // PopupMenuItem(
-      //   child: Text('Cerrar Sesión'),
-      //   value: 'logout',
-      // ),
-    ],
-    onSelected: (value) {
-      if (value == 'login') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      }
-      // Puedes eliminar esta parte para quitar la lógica de "Cerrar Sesión"
-      // else if (value == 'logout') {
-      //   // Lógica para cerrar sesión
-      //   // Puedes implementar la lógica de cierre de sesión aquí
-      // }
-    },
-  );
-}
-
+    return PopupMenuButton(
+      icon: Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          child: Text('SOY CONDUCTOR'),
+          value: 'login',
+        ),
+      ],
+      onSelected: (value) {
+        if (value == 'login') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        }
+      },
+    );
+  }
 }

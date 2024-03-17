@@ -40,6 +40,7 @@ dependencies:
   firebase_auth: ^4.14.0
   firebase_core: ^2.22.0
   #geoflutterfire: ^3.0.3
+  firebase_messaging: ^14.7.10
 
   google_maps_flutter: ^2.6.0
 
