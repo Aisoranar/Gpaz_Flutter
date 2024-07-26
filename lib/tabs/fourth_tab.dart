@@ -11,7 +11,7 @@ class FourthTab extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(vertical: 20.0),
               decoration: BoxDecoration(
-                color: Color(0xFF00B7FF),
+                color: Color.fromARGB(247, 0, 51, 122),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20.0),
                   bottomRight: Radius.circular(20.0),
@@ -77,7 +77,7 @@ class FourthTab extends StatelessWidget {
     required String role,
     required IconData icon,
   }) {
-    Color iconColor = Colors.blue;
+    Color iconColor = const Color.fromARGB(247, 0, 51, 122);
 
     // Verificar si es el director o el co-director y cambiar el color del icono
     if (role == 'Director' || role == 'Co-Director') {

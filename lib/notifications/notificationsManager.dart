@@ -1,12 +1,15 @@
-// notificationsManager.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationsManager {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  NotificationsManager() {
+  BuildContext? _context; // Añade un contexto para el manejo de la navegación
+
+  // Constructor que acepta un contexto opcional
+  NotificationsManager([this._context]) {
     _initNotifications();
   }
 
@@ -32,15 +35,18 @@ class NotificationsManager {
   }
 
   Future<void> _onSelectNotification(String? payload) async {
-    // Lógica cuando se toca la notificación
+    // Implementa la lógica cuando se toca la notificación
+    if (payload != null && _context != null) {
+        Navigator.of(_context!).pushNamed(payload);
+    }
   }
 
-  void showNotification(String title, String message) async {
+  void showNotification(String title, String message, {String? payload}) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'your_channel_id', // Cambia 'your_channel_id' por un identificador único
-      'Nombre del Canal', // Cambia 'Nombre del Canal' por el nombre que desees
-      'Descripción del Canal', // Cambia 'Descripción del Canal' por la descripción que desees
+      'your_channel_id',
+      'Nombre del Canal',
+      'Descripción del Canal',
       importance: Importance.max,
       priority: Priority.high,
     );
@@ -51,7 +57,7 @@ class NotificationsManager {
       title,
       message,
       platformChannelSpecifics,
-      payload: 'item x',
+      payload: payload,
     );
   }
 
@@ -63,4 +69,6 @@ class NotificationsManager {
   }
 }
 
+// Supongamos que inicializas esto en un lugar donde tienes acceso al contexto, como un widget:
 final NotificationsManager notificationsManager = NotificationsManager();
+

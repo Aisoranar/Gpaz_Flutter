@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
-import 'package:unipaz/notifications/notificationsManager%20.dart';
+import 'package:unipaz/notifications/notificationsManager.dart';
 
 class SecondTab extends StatefulWidget {
   @override
@@ -151,10 +151,10 @@ class _SecondTabState extends State<SecondTab> {
         if (_myLocationData != null) {
           _user1Location = LatLng(_myLocationData!.latitude!, _myLocationData!.longitude!);
           _user1Marker = Marker(
-            markerId: MarkerId('user1Marker'),
+            markerId: const MarkerId('user1Marker'),
             position: _user1Location,
             icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: InfoWindow(title: 'Usuario 1'),
+            infoWindow: const InfoWindow(title: 'Usuario 1'),
           );
         }
       });
@@ -173,10 +173,10 @@ class _SecondTabState extends State<SecondTab> {
     // Agregar o actualizar el marcador del usuario 2 en el mapa del usuario 1
     setState(() {
       _user2Marker = Marker(
-        markerId: MarkerId('user2Marker'),
+        markerId: const MarkerId('user2Marker'),
         position: _user2Location!,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        infoWindow: InfoWindow(title: 'Usuario 2'),
+        infoWindow: const InfoWindow(title: 'Usuario 2'),
       );
     });
   }
@@ -189,101 +189,119 @@ class _SecondTabState extends State<SecondTab> {
   }
 
   Set<Marker> _createMarkers() {
-    return Set<Marker>.from(
-      [
+    return <Marker>{
         Marker(
-          markerId: MarkerId("parada1"),
-          position: LatLng(7.0619238, -73.8648762),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 1",
-            snippet: "Salida Frente de la Bomba San Silvestre",
-          ),
+            markerId: const MarkerId("parada1"),
+            position: const LatLng(7.0619238, -73.8648762),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 1",
+                snippet: "Salida Frente de la Bomba San Silvestre",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada2"),
-          position: LatLng(7.061706, -73.8595833),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 2",
-            snippet: "Iglesia Oración Espiritu Santo",
-          ),
+            markerId: const MarkerId("parada2"),
+            position: const LatLng(7.061706, -73.8595833),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 2",
+                snippet: "Iglesia Oración Espiritu Santo",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada3"),
-          position: LatLng(7.0614351, -73.8533701),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 3",
-            snippet: "Parque Descabezado",
-          ),
+            markerId: const MarkerId("parada3"),
+            position: const LatLng(7.0612446, -73.8565249),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 3",
+                snippet: "Yamaha",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada4"),
-          position: LatLng(7.042433, -73.826933),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 4",
-            snippet: "Kokorollo",
-          ),
+            markerId: const MarkerId("parada4"),
+            position: const LatLng(7.0614351, -73.8533701),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 4",
+                snippet: "Parque Descabezado",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada5"),
-          position: LatLng(7.0602549, -73.8515163),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 5",
-            snippet: "Pollo Arabe",
-          ),
+            markerId: const MarkerId("parada5"),
+            position: const LatLng(7.0599965, -73.8513638),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 5",
+                snippet: "Kokorollo",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada6"),
-          position: LatLng(7.0602549, -73.8515163),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 6",
-            snippet: "Kokorollo",
-          ),
+            markerId: const MarkerId("parada6"),
+            position: const LatLng(7.0573063, -73.8506163),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 6",
+                snippet: "Pollo Arabe",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada7"),
-          position: LatLng(7.0505528, -73.8471392),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 7",
-            snippet: "Intercambiador",
-          ),
+            markerId: const MarkerId("parada7"),
+            position: const LatLng(7.0505295, -73.8472625),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 7",
+                snippet: "Intercambiador",
+            ),
+        ),
+         Marker(
+            markerId: const MarkerId("parada8"),
+            position: const LatLng(7.0502145, -73.8408953),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 8",
+                snippet: "Bosque Yarima",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada8"),
-          position: LatLng(7.0436381, -73.8363577),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 8",
-            snippet: "Palmar",
-          ),
+            markerId: const MarkerId("parada9"),
+            position: const LatLng(7.050025, -73.8405155),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 9",
+                snippet: "Barrio Yarima",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada9"),
-          position: LatLng(7.0424402, -73.8268916),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "Parada 9",
-            snippet: "Reten",
-          ),
+            markerId: const MarkerId("parada10"),
+            position: const LatLng(7.0436381, -73.8363577),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 10",
+                snippet: "Palmar",
+            ),
         ),
         Marker(
-          markerId: MarkerId("parada10"),
-          position: LatLng(7.0659946, -73.7448674),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(
-            title: "UNIPAZ Centro Investigaciones Santa Lucia",
-            snippet: "Campus Universitario",
-          ),
+            markerId: const MarkerId("parada11"),
+            position: const LatLng(7.0424402, -73.8268916),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "Parada 11",
+                snippet: "Reten",
+            ),
         ),
-      ],
-    );
-  }
+        Marker(
+            markerId: const MarkerId("parada12"),
+            position: const LatLng(7.0659946, -73.7448674),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(
+                title: "UNIPAZ Centro Investigaciones Santa Lucia",
+                snippet: "Campus Universitario",
+            ),
+        ),
+    };
+}
+
+
 
   Set<Polyline> _createPolyline() {
     List<LatLng> points = [...ruta];

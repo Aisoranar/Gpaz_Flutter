@@ -104,8 +104,13 @@ flutter:
     - Assets/icon/isologo.jpg
     - Assets/icon/cotsem2.png
     - Assets/images/
-    - Assets/images/paradas/
+    - Assets/images/paradas/    
+    - Assets/images/paradas/parada_principal.jpg
+    - Assets/images/paradas/parada_segunda.jpg
+    - Assets/images/paradas/parada_palmar.jpg    
     - Assets/images/paradas/parada_frentedescabezado.jpg
+    - Assets/images/paradas/parada_bosquecira.jpg
+    - Assets/images/paradas/muypronto.jpg
   #   - images/a_dot_ham.jpeg
 
   

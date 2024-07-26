@@ -4,56 +4,26 @@ import 'package:unipaz/tabs/firts_tab.dart';
 import 'package:unipaz/tabs/fourth_tab.dart';
 import 'package:unipaz/tabs/second_tab.dart';
 import 'package:unipaz/tabs/third_tab.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    FirebaseMessaging.instance.requestPermission(
-      sound: true,
-      badge: true,
-      alert: true,
-      provisional: false,
-    );
+  _HomePageState createState() => _HomePageState();
+}
 
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'G P A Z - A L P H A',
-                style: TextStyle(
-                  letterSpacing: 1.5,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(247, 0, 51, 122),
-                ),
-              ),
-              _buildPopupMenuButton(context),
-            ],
-          ),
-          bottom: TabBar(
-            tabs: [
-              _buildTab(Icons.home),
-              _buildTab(Icons.map),
-              _buildTab(Icons.location_on),
-              _buildTab(Icons.group),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            FirstTab(),
-            SecondTab(),
-            ThirdTab(),
-            FourthTab(),
-          ],
-        ),
-      ),
-    );
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _pageController = PageController();
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        _pageController.jumpToPage(_tabController.index);
+      }
+    });
   }
 
   Widget _buildTab(IconData icon) {
@@ -65,23 +35,68 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildPopupMenuButton(BuildContext context) {
-    return PopupMenuButton(
-      icon: Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          child: Text('SOY CONDUCTOR'),
-          value: 'login',
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('GPAZ - ALPHA'),
+        actions: <Widget>[
+          _buildPopupMenuButton(),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            _buildTab(Icons.home),
+            _buildTab(Icons.map),
+            _buildTab(Icons.location_on),
+            _buildTab(Icons.group),
+          ],
         ),
-      ],
-      onSelected: (value) {
-        if (value == 'login') {
+      ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          _tabController.index = index;
+        },
+        physics: NeverScrollableScrollPhysics(), // No swipe between tabs
+        children: [
+          FirstTab(),
+          GestureDetector(
+            // Disable swipe gestures in the map tab
+            onHorizontalDragStart: (_) {},
+            child: SecondTab(),
+          ),
+          ThirdTab(),
+          FourthTab(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPopupMenuButton() {
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
+      onSelected: (String result) {
+        if (result == 'login') {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => LoginPage()),
           );
         }
       },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'login',
+          child: Text('SOY CONDUCTOR'),
+        ),
+      ],
     );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 }

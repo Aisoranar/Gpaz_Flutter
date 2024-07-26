@@ -9,11 +9,11 @@ class _ThirdTabState extends State<ThirdTab> {
   Map<String, Map<String, dynamic>> routeData = {
     'Parada 1': {
       'description': 'CALLE 52 CRA 12',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/parada_principal.jpg',
     },
     'Parada 2': {
       'description': 'CALLE 52 CRA 13',
-      'imagePath': 'Assets/images/paradas/parada_frentedescabezado.jpg',
+      'imagePath': 'Assets/images/paradas/parada_segunda.jpg',
     },
     'Parada 3': {
       'description': 'YAMAHA',
@@ -21,43 +21,43 @@ class _ThirdTabState extends State<ThirdTab> {
     },
     'Parada 4': {
       'description': 'CALLE 52 CRA 22',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/parada_frentedescabezado.jpg',
     },
     'Parada 5': {
       'description': 'CALLE 52 CRA 26',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 6': {
       'description': 'POLLO ARABE',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 7': {
       'description': 'EL INTERCAMBIADOR',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 8': {
       'description': 'BARRIO YARIMA',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 9': {
       'description': 'EL PALMAR',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/parada_palmar.jpg',
     },
     'Parada 10': {
       'description': 'BOSQUE DE LA CIRA',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/parada_bosquecira.jpg',
     },
     'Parada 11': {
       'description': 'LA BONANZA',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 12': {
       'description': 'EL RETEN',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 13': {
       'description': 'UNIPAZ',
-      'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
   };
 
@@ -71,7 +71,7 @@ class _ThirdTabState extends State<ThirdTab> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 20.0),//aca
               decoration: BoxDecoration(
-                color: Color(0xFF00B7FF),
+                color: Color.fromARGB(247, 0, 51, 122),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20.0),
                   bottomRight: Radius.circular(20.0),
@@ -127,7 +127,7 @@ class _ThirdTabState extends State<ThirdTab> {
         children: [
           Icon(
             iconData,
-            color: Color(0xFF00B7FF),
+            color: Color.fromARGB(247, 0, 51, 122),
             size: 30.0,
           ),
           SizedBox(width: 16.0),
