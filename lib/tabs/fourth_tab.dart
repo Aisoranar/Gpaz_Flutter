@@ -36,12 +36,20 @@ class FourthTab extends StatelessWidget {
                     icon: Icons.person,
                   ),
 
-                  // Jhonys Rios
+                  // Jhonis Rios
                   _buildTeamMember(
-                    name: 'Ing. Jhonys Rios',
+                    name: 'Ing. Esp. Jhonis Rios',
                     role: 'Director',
                     icon: Icons.person,
                   ),
+
+                  // Karen Salom
+                  _buildTeamMember(
+                    name: 'Ing. Mag. Karen Salom',
+                    role: 'Directora',
+                    icon: Icons.person,
+                  ),
+
 
                   // Sebastian Romero
                   _buildTeamMember(
@@ -50,14 +58,12 @@ class FourthTab extends StatelessWidget {
                     icon: Icons.person,
                   ),
 
-                  // Juan Gómez
+                  // Hadik Chavez
                   _buildTeamMember(
                     name: 'Hadik Chavez',
                     role: 'Diseñador UI/UX',
                     icon: Icons.person,
                   ),
-
-                  
 
                   // Agradecimientos
                   _buildAgradecimientos(),
@@ -80,7 +86,7 @@ class FourthTab extends StatelessWidget {
     Color iconColor = const Color.fromARGB(247, 0, 51, 122);
 
     // Verificar si es el director o el co-director y cambiar el color del icono
-    if (role == 'Director' || role == 'Co-Director') {
+    if (role == 'Director' || role == 'Directora') {
       iconColor = Colors.green; // Puedes cambiar este color a tu preferencia
     }
 

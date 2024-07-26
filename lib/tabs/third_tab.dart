@@ -8,51 +8,51 @@ class ThirdTab extends StatefulWidget {
 class _ThirdTabState extends State<ThirdTab> {
   Map<String, Map<String, dynamic>> routeData = {
     'Parada 1': {
-      'description': 'CALLE 52 CRA 12',
+      'description': 'Frente a la bomba\nSan Silvestre Av 52',
       'imagePath': 'Assets/images/paradas/parada_principal.jpg',
     },
     'Parada 2': {
-      'description': 'CALLE 52 CRA 13',
+      'description': 'Iglesia Oración\nEspíritu Santo',
       'imagePath': 'Assets/images/paradas/parada_segunda.jpg',
     },
     'Parada 3': {
-      'description': 'YAMAHA',
+      'description': 'Yamaha Av 52',
       'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
     },
     'Parada 4': {
-      'description': 'CALLE 52 CRA 22',
+      'description': 'Frente al Parque\nCamilo Torres',
       'imagePath': 'Assets/images/paradas/parada_frentedescabezado.jpg',
     },
     'Parada 5': {
-      'description': 'CALLE 52 CRA 26',
+      'description': 'Cajero Servibanca\nde la 28',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 6': {
-      'description': 'POLLO ARABE',
+      'description': 'Restaurante Pollo\nArabe',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 7': {
-      'description': 'EL INTERCAMBIADOR',
+      'description': 'Intercambiador',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 8': {
-      'description': 'BARRIO YARIMA',
+      'description': 'Entrada Barrio\nYarima',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 9': {
-      'description': 'EL PALMAR',
+      'description': 'El Palmar',
       'imagePath': 'Assets/images/paradas/parada_palmar.jpg',
     },
     'Parada 10': {
-      'description': 'BOSQUE DE LA CIRA',
+      'description': 'Bosques de la Cira',
       'imagePath': 'Assets/images/paradas/parada_bosquecira.jpg',
     },
     'Parada 11': {
-      'description': 'LA BONANZA',
+      'description': 'Frente a Bonanza -\nBavaria',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 12': {
-      'description': 'EL RETEN',
+      'description': 'El Retén',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
     },
     'Parada 13': {
@@ -69,7 +69,7 @@ class _ThirdTabState extends State<ThirdTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.symmetric(vertical: 20.0),//aca
+              padding: EdgeInsets.symmetric(vertical: 20.0),
               decoration: BoxDecoration(
                 color: Color.fromARGB(247, 0, 51, 122),
                 borderRadius: BorderRadius.only(
@@ -131,23 +131,27 @@ class _ThirdTabState extends State<ThirdTab> {
             size: 30.0,
           ),
           SizedBox(width: 16.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                subtitle,
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 16),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-          Spacer(),
+          SizedBox(width: 16.0),
           CircleAvatar(
-            radius: 50.0, //IMAGEN CIRCULO ANCHO
+            radius: 30.0,
             backgroundImage: AssetImage(imagePath),
           ),
         ],
@@ -155,42 +159,100 @@ class _ThirdTabState extends State<ThirdTab> {
     );
   }
 
-//IMAGEN
   void _showRouteDescription(BuildContext context, String route) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(route),
-        content: Container(
-          constraints: BoxConstraints(maxHeight: 300.0),
-          child: Column(
-            children: [
-              Image.asset(
-                routeData[route]?['imagePath'] ?? '',
-                height: 200.0,
-                width: 400.0,
-              ),
-              SizedBox(height: 8.0),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(routeData[route]?['description'] ?? ''),
-              ),
-            ],
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RouteDescriptionScreen(
+          title: route,
+          description: routeData[route]?['description'] ?? '',
+          imagePath: routeData[route]?['imagePath'] ?? '',
         ),
-        contentPadding: EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 0.0), // Ajusta el espacio alrededor del contenido
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cerrar'),
-          ),
-        ],
-      );
-    },
-  );
+      ),
+    );
+  }
 }
 
+class RouteDescriptionScreen extends StatelessWidget {
+  final String title;
+  final String description;
+  final String imagePath;
 
+  RouteDescriptionScreen({
+    required this.title,
+    required this.description,
+    required this.imagePath,
+  });
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.white, // Cambia el color de la flecha a blanco
+        ),
+        title: Text(
+          title,
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Color.fromARGB(247, 0, 51, 122),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: Image.asset(
+                  imagePath,
+                  height: 300.0,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Container(
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(15.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 5.0,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                description,
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(247, 0, 51, 122),
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cerrar',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
