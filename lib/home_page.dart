@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:unipaz/pages/login_page.dart';
 import 'package:unipaz/tabs/firts_tab.dart';
-import 'package:unipaz/tabs/fourth_tab.dart';
 import 'package:unipaz/tabs/second_tab.dart';
 import 'package:unipaz/tabs/third_tab.dart';
+import 'package:unipaz/tabs/fourth_tab.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,26 +12,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _pageController = PageController();
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        _pageController.jumpToPage(_tabController.index);
-      }
-    });
   }
 
-  Widget _buildTab(IconData icon) {
+  Widget _buildTab(IconData icon, String label) {
     return Tab(
       icon: Icon(
         icon,
         color: Color.fromARGB(247, 0, 51, 122),
       ),
+      text: label,
     );
   }
 
@@ -39,36 +33,56 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GPAZ - ALPHA'),
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.directions_bus, color: Color.fromARGB(247, 0, 51, 122)),
+          onPressed: () {},
+        ),
+        title: Text(
+          'UNIPAZ - GPAZ ',
+          style: TextStyle(color: Colors.black),
+        ),
+        centerTitle: true,
         actions: <Widget>[
           _buildPopupMenuButton(),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            _buildTab(Icons.home),
-            _buildTab(Icons.map),
-            _buildTab(Icons.location_on),
-            _buildTab(Icons.group),
-          ],
-        ),
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          _tabController.index = index;
-        },
-        physics: NeverScrollableScrollPhysics(), // No swipe between tabs
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          FirstTab(),
-          GestureDetector(
-            // Disable swipe gestures in the map tab
-            onHorizontalDragStart: (_) {},
-            child: SecondTab(),
-          ),
+          FirstTab(),          
           ThirdTab(),
+          SecondTab(),
           FourthTab(),
         ],
+      ),
+      bottomNavigationBar: Container(
+        color: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                spreadRadius: 0,
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: TabBar(
+            controller: _tabController,
+            tabs: [
+              _buildTab(Icons.home, 'Inicio'),
+              _buildTab(Icons.location_on, 'Paradas'),
+              _buildTab(Icons.map, 'Ruta'),
+              _buildTab(Icons.group, 'Acerca de'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -96,7 +110,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     _tabController.dispose();
-    _pageController.dispose();
     super.dispose();
   }
 }

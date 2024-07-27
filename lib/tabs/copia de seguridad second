@@ -23,6 +23,8 @@ class _SecondTabState extends State<SecondTab> {
   bool _locationUpdatesActive = false;
   late Marker _user1Marker;
   late Marker _user2Marker; // Agregar el marcador del usuario 2
+  late BitmapDescriptor _user1Icon;
+  late BitmapDescriptor _user2Icon;
 
   // Lista de puntos de ruta
   List<LatLng> ruta = [
@@ -90,6 +92,18 @@ class _SecondTabState extends State<SecondTab> {
     _getUser1Location();
     _subscribeToLocationUpdates();
     _requestLocationPermission();
+  }
+
+  Future<void> _loadCustomIcons() async {
+    _user1Icon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(100, 100)),  // Tamaño ajustado
+      'Assets/icon/cotsem2.png',
+    );
+
+    _user2Icon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(100, 100)),  // Tamaño ajustado
+      'Assets/icon/cotsem2.png',
+    );
   }
 
   Future<void> _getUser1Location() async {
