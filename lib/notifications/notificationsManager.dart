@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationsManager {
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   BuildContext? _context; // Añade un contexto para el manejo de la navegación
 
@@ -20,7 +19,7 @@ class NotificationsManager {
         IOSInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
-      requestSoundPermission: false,
+      requestSoundPermission: true, // Cambiado a true
     );
     final InitializationSettings initializationSettings =
         InitializationSettings(
@@ -37,7 +36,7 @@ class NotificationsManager {
   Future<void> _onSelectNotification(String? payload) async {
     // Implementa la lógica cuando se toca la notificación
     if (payload != null && _context != null) {
-        Navigator.of(_context!).pushNamed(payload);
+      Navigator.of(_context!).pushNamed(payload);
     }
   }
 
@@ -71,4 +70,3 @@ class NotificationsManager {
 
 // Supongamos que inicializas esto en un lugar donde tienes acceso al contexto, como un widget:
 final NotificationsManager notificationsManager = NotificationsManager();
-

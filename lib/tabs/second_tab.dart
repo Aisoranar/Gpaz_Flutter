@@ -10,13 +10,18 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 class SecondTab extends StatefulWidget {
+  final String? markerId; // Accept markerId as a parameter
+  final bool showBackButton; // Accept showBackButton as a parameter
+
+  SecondTab({this.markerId, this.showBackButton = false});
+
   @override
   _SecondTabState createState() => _SecondTabState();
 }
 
 class _SecondTabState extends State<SecondTab> {
   Completer<GoogleMapController> _controller = Completer();
-  late LatLng _user1Location;
+  LatLng _user1Location = LatLng(0, 0); // Initialize with a default value
   bool _showPolyline = false;
   LocationData? _myLocationData;
   Location _location = Location();
@@ -30,30 +35,35 @@ class _SecondTabState extends State<SecondTab> {
   String _duration = '';
   List<LatLng> _polylineCoordinates = [];
   Map<String, Marker> _userMarkers = {};
+  bool _iconsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadCustomIcons();
-    _getUser1Location();
-    _subscribeToLocationUpdates();
-    _requestLocationPermission();
-    _subscribeToDriversLocations();
+    _loadCustomIcons().then((_) {
+      setState(() {
+        _iconsLoaded = true;
+      });
+      _getUser1Location();
+      _subscribeToLocationUpdates();
+      _requestLocationPermission();
+      _subscribeToDriversLocations();
+    });
   }
 
   Future<void> _loadCustomIcons() async {
     _user1Icon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),  // Tamaño ajustado
+      ImageConfiguration(size: Size(20, 20)),
       'Assets/icon/gpsiconuser.png',
     );
 
     _user2Icon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),  // Tamaño ajustado
+      ImageConfiguration(size: Size(20, 20)),
       'Assets/icon/cotsem.png',
     );
 
     _customIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),  // Tamaño ajustado
+      ImageConfiguration(size: Size(20, 20)),
       'Assets/icon/gpsiconparada.png',
     );
   }
@@ -68,6 +78,7 @@ class _SecondTabState extends State<SecondTab> {
         icon: _user1Icon,
         infoWindow: InfoWindow(title: 'Usuario 1'),
       );
+      _userMarkers['user1'] = _user1Marker;
     });
   }
 
@@ -78,11 +89,12 @@ class _SecondTabState extends State<SecondTab> {
         if (_myLocationData != null) {
           _user1Location = LatLng(_myLocationData!.latitude!, _myLocationData!.longitude!);
           _user1Marker = Marker(
-            markerId: const MarkerId('user1Marker'),
+            markerId: MarkerId('user1Marker'),
             position: _user1Location,
             icon: _user1Icon,
-            infoWindow: const InfoWindow(title: 'Usuario 1'),
+            infoWindow: InfoWindow(title: 'Usuario 1'),
           );
+          _userMarkers['user1'] = _user1Marker;
           _calculateDistancesAndTimes();
         }
       });
@@ -93,7 +105,6 @@ class _SecondTabState extends State<SecondTab> {
   void _subscribeToDriversLocations() {
     FirebaseFirestore.instance.collection('ubicaciones').snapshots().listen((QuerySnapshot snapshot) {
       setState(() {
-        _userMarkers.clear();
         for (var doc in snapshot.docs) {
           double latitud = doc['latitud'];
           double longitud = doc['longitud'];
@@ -149,12 +160,12 @@ class _SecondTabState extends State<SecondTab> {
   Set<Marker> _createMarkers() {
     Set<Marker> markers = {
       Marker(
-        markerId: const MarkerId("parada1"),
-        position: const LatLng(7.0619238, -73.8648762),
+        markerId: const MarkerId("parada4"),
+        position: const LatLng(7.0614351, -73.8533701),
         icon: _customIcon,
         infoWindow: const InfoWindow(
-          title: "Parada 1",
-          snippet: "Frente a la Bomba San Silvestre Av. 52",
+          title: "Parada 4",          
+          snippet: "Frente al Parque Camilo Torres",
         ),
       ),
       Marker(
@@ -180,7 +191,7 @@ class _SecondTabState extends State<SecondTab> {
         position: const LatLng(7.0614351, -73.8533701),
         icon: _customIcon,
         infoWindow: const InfoWindow(
-          title: "Parada 4",
+          title: "Parada 4",          
           snippet: "Frente al Parque Camilo Torres",
         ),
       ),
@@ -190,7 +201,7 @@ class _SecondTabState extends State<SecondTab> {
         icon: _customIcon,
         infoWindow: const InfoWindow(
           title: "Parada 5",
-          snippet: "Cajero Servibanca de la 28",
+          snippet: "Cajero Servibanca de la 28",        
         ),
       ),
       Marker(
@@ -277,30 +288,70 @@ class _SecondTabState extends State<SecondTab> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_iconsLoaded) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     Set<Marker> markers = _createMarkers();
 
     return Scaffold(
+      appBar: widget.showBackButton
+          ? AppBar(
+              title: Text('Volver', style: TextStyle(color: Colors.white)),
+              backgroundColor: Color.fromARGB(247, 0, 51, 122),
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            )
+          : null,
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(7.0619238, -73.8648762),
+            initialCameraPosition: CameraPosition(
+              target: _user1Location, // Use default initialized value here
               zoom: 14.0,
             ),
-            onMapCreated: (GoogleMapController controller) {
+            onMapCreated: (GoogleMapController controller) async {
               _controller.complete(controller);
+              if (widget.markerId != null) {
+                // Center map on the specified marker if markerId is provided
+                Marker? marker = _userMarkers[widget.markerId];
+                if (marker != null) {
+                  await controller.animateCamera(
+                    CameraUpdate.newLatLng(marker.position),
+                  );
+                  await controller.showMarkerInfoWindow(marker.markerId);
+                } else {
+                  // Check default markers
+                  Marker? defaultMarker = markers.firstWhere(
+                    (m) => m.markerId.value == widget.markerId,
+                    orElse: () => markers.first,
+                  );
+                  await controller.animateCamera(
+                    CameraUpdate.newLatLng(defaultMarker.position),
+                  );
+                  await controller.showMarkerInfoWindow(defaultMarker.markerId);
+                }
+              }
             },
             markers: markers,
             polylines: _showPolyline && _userMarkers.isNotEmpty
-              ? {
-                  Polyline(
-                    polylineId: PolylineId('route'),
-                    points: [_user1Location, ..._userMarkers.values.map((marker) => marker.position)],
-                    color: Colors.red,
-                    width: 4,
-                  ),
-                }
-              : {},
+                ? {
+                    Polyline(
+                      polylineId: PolylineId('route'),
+                      points: [_user1Location, ..._userMarkers.values.map((marker) => marker.position)],
+                      color: Colors.red,
+                      width: 4,
+                    ),
+                  }
+                : {},
             gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
               Factory<OneSequenceGestureRecognizer>(
                 () => EagerGestureRecognizer(),

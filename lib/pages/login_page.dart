@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:unipaz/components/square_tile.dart';
 import 'package:unipaz/conductor/mapconductor.dart';
-import 'package:unipaz/pages/register_page.dart';  // Asegúrate de ajustar la ruta de importación.
+import 'package:unipaz/pages/register_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -72,6 +73,29 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUserCredentials();
+  }
+
+  Future<void> _loadUserCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
+    String? password = prefs.getString('password');
+
+    if (email != null && password != null) {
+      emailController.text = email;
+      passwordController.text = password;
+    }
+  }
+
+  Future<void> _saveUserCredentials(String email, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', email);
+    await prefs.setString('password', password);
+  }
+
   void signUserIn() async {
     showDialog(
       context: context,
@@ -83,6 +107,8 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       );
+
+      await _saveUserCredentials(emailController.text, passwordController.text);
 
       Navigator.pop(context);
 
@@ -116,122 +142,122 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: const Color.fromARGB(247, 0, 51, 122),
-    body: Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color.fromARGB(255, 255, 255, 255), Color.fromARGB(255, 255, 255, 255)],
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(247, 0, 51, 122),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color.fromARGB(255, 255, 255, 255), Color.fromARGB(255, 255, 255, 255)],
+          ),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 80),
-              const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Image(
-                      image: AssetImage('Assets/icon/isologo.jpg'),
-                      height: 100,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 80),
-              const Text(
-                '¡Bienvenido de vuelta!',
-                style: TextStyle(
-                  color: Color.fromARGB(247, 0, 51, 122),
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(height: 25),
-              MyTextField(
-                controller: emailController,
-                hintText: 'Correo electrónico',
-                obscureText: false,
-                prefixIcon: Icon(Icons.email),
-                iconColor: Color.fromARGB(247, 0, 51, 122),
-              ),
-              const SizedBox(height: 10),
-              MyTextField(
-                controller: passwordController,
-                hintText: 'Contraseña',
-                obscureText: true,
-                prefixIcon: Icon(Icons.lock),
-                iconColor: Color.fromARGB(247, 0, 51, 122),
-              ),
-              const SizedBox(height: 25),
-              MyButton(
-                onTap: signUserIn,
-                buttonColor: const Color.fromARGB(247, 0, 51, 122),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()), // Navegar a la página de registro.
-                  );
-                },
-                child: Text(
-                  '¿No tienes una cuenta? Regístrate',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 50),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 80),
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        'Continuar con',
-                        style: TextStyle(color: Color.fromARGB(247, 0, 51, 122)),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Color.fromARGB(255, 254, 253, 253),
+                      child: Image(
+                        image: AssetImage('Assets/icon/isologo.jpg'),
+                        height: 100,
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 25),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SquareTile(imagePath: 'lib/images/google.png'),
-                ],
-              ),
-              const SizedBox(height: 50),
-            ],
+                const SizedBox(height: 80),
+                const Text(
+                  '¡Bienvenido de vuelta!',
+                  style: TextStyle(
+                    color: Color.fromARGB(247, 0, 51, 122),
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                MyTextField(
+                  controller: emailController,
+                  hintText: 'Correo electrónico',
+                  obscureText: false,
+                  prefixIcon: Icon(Icons.email),
+                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                ),
+                const SizedBox(height: 10),
+                MyTextField(
+                  controller: passwordController,
+                  hintText: 'Contraseña',
+                  obscureText: true,
+                  prefixIcon: Icon(Icons.lock),
+                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                ),
+                const SizedBox(height: 25),
+                MyButton(
+                  onTap: signUserIn,
+                  buttonColor: const Color.fromARGB(247, 0, 51, 122),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterPage()), // Navegar a la página de registro.
+                    );
+                  },
+                  child: Text(
+                    '¿No tienes una cuenta? Regístrate',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 50),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(
+                          'Continuar con',
+                          style: TextStyle(color: Color.fromARGB(247, 0, 51, 122)),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: Color.fromARGB(255, 254, 253, 253),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SquareTile(imagePath: 'lib/images/google.png'),
+                  ],
+                ),
+                const SizedBox(height: 50),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}}
-
+    );
+  }
+}
 
 void main() {
   runApp(MaterialApp(

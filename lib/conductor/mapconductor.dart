@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
 import 'package:unipaz/notifications/notificationsManager.dart';
+import 'package:unipaz/conductor/profileconductor.dart';
 
 class MapConductor extends StatefulWidget {
   @override
@@ -13,80 +15,107 @@ class MapConductor extends StatefulWidget {
 class _MapConductorState extends State<MapConductor> {
   Completer<GoogleMapController> _controller = Completer();
   late LatLng _user2Location;
+  late LatLng _previousLocation;
   late bool _locationUpdatesActive;
   late StreamSubscription<LocationData> _locationSubscription;
   late Marker _user2Marker;
   late Set<Marker> _markers;
   late Set<Polyline> _polylines;
+  late BitmapDescriptor _customIcon;
+  late BitmapDescriptor _user2Icon;
+  double _rotation = 0;
 
   @override
   void initState() {
     super.initState();
     _locationUpdatesActive = false;
-    _user2Marker = Marker(
-      markerId: MarkerId('user2Marker'),
-      position: LatLng(0, 0), // Posición inicial, será actualizada en tiempo real
-      infoWindow: InfoWindow(title: 'Usuario 2'),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen), // Especificar el color verde
-    );
+    _previousLocation = LatLng(0, 0);
+    _loadCustomIcons().then((_) {
+      setState(() {
+        _user2Marker = Marker(
+          markerId: MarkerId('user2Marker'),
+          position: LatLng(0, 0), // Posición inicial, será actualizada en tiempo real
+          infoWindow: InfoWindow(title: 'Usuario 2'),
+          icon: _user2Icon,
+          rotation: _rotation,
+        );
+        _markers = _createMarkers();
+      });
+    });
     _user2Location = LatLng(0, 0);
-    _markers = _createMarkers();
     _polylines = _createPolyline();
     _getUser2Location();
+  }
+
+  Future<void> _loadCustomIcons() async {
+    _customIcon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(20, 20)),  // Tamaño ajustado
+      'Assets/icon/gpsiconparada.png',
+    );
+
+    _user2Icon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(20, 20)),  // Tamaño ajustado
+      'Assets/icon/cotsem.png',
+    );
   }
 
   Future<void> _getUser2Location() async {
     LocationData locationData = await Location().getLocation();
     setState(() {
       _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
+      _previousLocation = _user2Location;
       _user2Marker = _user2Marker.copyWith(positionParam: _user2Location);
       _animateCameraToUser2(); // Animar la cámara para seguir al usuario2
     });
   }
 
   void _toggleLocationUpdates() {
-  if (_locationUpdatesActive) {
-    _locationSubscription.cancel();
-    _clearUserLocation();
-    notificationsManager.showNotification(
-      'GPS Desactivado',
-      'Se ha desactivado el GPS correctamente.',
-    );
-    notificationsManager.showGlobalNotification(
-      'Bus Desconectado',
-      'El bus ha finalizado el trayecto.',
-    );
-    notificationsManager.showGlobalNotification(
-      'Conductor Finalizó Ruta',
-      'El conductor ha finalizado la ruta.',
-    );
-  } else {
-    _startLocationUpdates();
-    notificationsManager.showNotification(
-      'GPS Activado',
-      'Se ha activado el GPS correctamente.',
-    );
-    notificationsManager.showGlobalNotification(
-      'Bus Conectado',
-      'El bus está en camino. ¡Prepárate!',
-    );
-    notificationsManager.showGlobalNotification(
-      'Conductor en Camino',
-      'El conductor va en camino.',
-    );
+    if (_locationUpdatesActive) {
+      _locationSubscription.cancel();
+      _clearUserLocation();
+      notificationsManager.showNotification(
+        'GPS Desactivado',
+        'Se ha desactivado el GPS correctamente.',
+      );
+      notificationsManager.showGlobalNotification(
+        'Bus Desconectado',
+        'El bus ha finalizado el trayecto.',
+      );
+      notificationsManager.showGlobalNotification(
+        'Conductor Finalizó Ruta',
+        'El conductor ha finalizado la ruta.',
+      );
+    } else {
+      _startLocationUpdates();
+      notificationsManager.showNotification(
+        'GPS Activado',
+        'Se ha activado el GPS correctamente.',
+      );
+      notificationsManager.showGlobalNotification(
+        'Bus Conectado',
+        'El bus está en camino. ¡Prepárate!',
+      );
+      notificationsManager.showGlobalNotification(
+        'Conductor en Camino',
+        'El conductor va en camino.',
+      );
+    }
+    setState(() {
+      _locationUpdatesActive = !_locationUpdatesActive;
+    });
   }
-  setState(() {
-    _locationUpdatesActive = !_locationUpdatesActive;
-  });
-}
-
 
   void _startLocationUpdates() {
     _locationSubscription =
         Location().onLocationChanged.listen((LocationData locationData) {
       setState(() {
+        _previousLocation = _user2Location;
         _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
-        _user2Marker = _user2Marker.copyWith(positionParam: _user2Location);
+        _rotation = _calculateRotation(_previousLocation, _user2Location);
+        _user2Marker = _user2Marker.copyWith(
+          positionParam: _user2Location,
+          rotationParam: _rotation,
+        );
         _animateCameraToUser2(); // Animar la cámara para seguir al usuario2
       });
 
@@ -100,53 +129,74 @@ class _MapConductorState extends State<MapConductor> {
     });
   }
 
+  double _calculateRotation(LatLng start, LatLng end) {
+    final double lat1 = start.latitude * pi / 180.0;
+    final double lng1 = start.longitude * pi / 180.0;
+    final double lat2 = end.latitude * pi / 180.0;
+    final double lng2 = end.longitude * pi / 180.0;
+
+    final double dLon = lng2 - lng1;
+
+    final double y = sin(dLon) * cos(lat2);
+    final double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+    final double bearing = atan2(y, x);
+
+    return (bearing * 180.0 / pi + 360) % 360;
+  }
+
   void _clearUserLocation() {
     FirebaseFirestore.instance.collection('ubicaciones').doc('user2').delete();
-    // Cuando se borra la ubicación, también debemos actualizar la ubicación del usuario2 en el mapa del usuario1
-    // Por lo tanto, establecemos la ubicación del usuario2 en null
     setState(() {
       _user2Location = LatLng(0, 0);
     });
   }
 
   void _showOptionsDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Selecciona una opción'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                _sendNotification('Estoy lleno', 'El bus está lleno.');
-                notificationsManager.showGlobalNotification(
-                  'Bus Lleno',
-                  'El bus no tiene más espacio disponible.'
-                );
-                Navigator.pop(context);
-              },
-              child: Text('Estoy lleno'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _sendNotification('Tengo problemas', 'Se ha presentado un problema.');
-                notificationsManager.showGlobalNotification(
-                  'Problemas en el Bus',
-                  'El bus está experimentando dificultades técnicas.'
-                );
-                Navigator.pop(context);
-              },
-              child: Text('Tengo problemas'),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Selecciona una opción'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Estoy lleno', 'El bus está lleno.');
+                  notificationsManager.showGlobalNotification(
+                    'Bus Lleno',
+                    'El bus no tiene más espacio disponible.'
+                  );
+                  Navigator.pop(context);
+                },
+                child: Text('Estoy lleno'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Tengo problemas', 'Se ha presentado un problema.');
+                  notificationsManager.showGlobalNotification(
+                    'Problemas en el Bus',
+                    'El bus está experimentando dificultades técnicas.'
+                  );
+                  Navigator.pop(context);
+                },
+                child: Text('Tengo problemas'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   void _sendNotification(String title, String message) {
     notificationsManager.showNotification(title, message);
@@ -170,116 +220,125 @@ class _MapConductorState extends State<MapConductor> {
 
   Set<Marker> _createMarkers() {
     return <Marker>{
-        Marker(
-            markerId: const MarkerId("parada1"),
-            position: const LatLng(7.0619238, -73.8648762),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 1",
-                snippet: "Salida Frente de la Bomba San Silvestre",
-            ),
+      Marker(
+        markerId: const MarkerId("parada1"),
+        position: const LatLng(7.0619238, -73.8648762),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 1",
+          snippet: "Frente a la Bomba San Silvestre Av. 52",
         ),
-        Marker(
-            markerId: const MarkerId("parada2"),
-            position: const LatLng(7.061706, -73.8595833),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 2",
-                snippet: "Iglesia Oración Espiritu Santo",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada2"),
+        position: const LatLng(7.061706, -73.8595833),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 2",
+          snippet: "Iglesia Oración Espíritu Santo",
         ),
-        Marker(
-            markerId: const MarkerId("parada3"),
-            position: const LatLng(7.0612446, -73.8565249),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 3",
-                snippet: "Yamaha",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada3"),
+        position: const LatLng(7.0612446, -73.8565249),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 3",
+          snippet: "Yamaha Av 52",
         ),
-        Marker(
-            markerId: const MarkerId("parada4"),
-            position: const LatLng(7.0614351, -73.8533701),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 4",
-                snippet: "Parque Descabezado",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada4"),
+        position: const LatLng(7.0614351, -73.8533701),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 4",          
+          snippet: "Frente al Parque Camilo Torres",
         ),
-        Marker(
-            markerId: const MarkerId("parada5"),
-            position: const LatLng(7.0599965, -73.8513638),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 5",
-                snippet: "Kokorollo",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada5"),
+        position: const LatLng(7.0599965, -73.8513638),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 5",
+          snippet: "Cajero Servibanca de la 28",        
         ),
-        Marker(
-            markerId: const MarkerId("parada6"),
-            position: const LatLng(7.0573063, -73.8506163),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 6",
-                snippet: "Pollo Arabe",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada6"),
+        position: const LatLng(7.0573063, -73.8506163),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 6",
+          snippet: "Restaurante Pollo Arabe",
         ),
-        Marker(
-            markerId: const MarkerId("parada7"),
-            position: const LatLng(7.0505295, -73.8472625),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 7",
-                snippet: "Intercambiador",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada7"),
+        position: const LatLng(7.0505295, -73.8472625),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 7",
+          snippet: "Intercambiador",
         ),
-         Marker(
-            markerId: const MarkerId("parada8"),
-            position: const LatLng(7.0502145, -73.8408953),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 8",
-                snippet: "Bosque Yarima",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada8"),
+        position: const LatLng(7.050025, -73.8405155),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 8",
+          snippet: "Entrada Barrio Yarima",
         ),
-        Marker(
-            markerId: const MarkerId("parada9"),
-            position: const LatLng(7.050025, -73.8405155),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 9",
-                snippet: "Barrio Yarima",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada9"),
+        position: const LatLng(7.0436381, -73.8363577),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 9",
+          snippet: "El Palmar",
         ),
-        Marker(
-            markerId: const MarkerId("parada10"),
-            position: const LatLng(7.0436381, -73.8363577),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 10",
-                snippet: "Palmar",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada10"),
+        position: const LatLng(7.0422154, -73.83111),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 10",
+          snippet: "Bosques de la Cira",
         ),
-        Marker(
-            markerId: const MarkerId("parada11"),
-            position: const LatLng(7.0424402, -73.8268916),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "Parada 11",
-                snippet: "Reten",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada11"),
+        position: const LatLng(7.0421841, -73.8290742),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 11",
+          snippet: "Frente a Bonanza - Bavaria",
         ),
-        Marker(
-            markerId: const MarkerId("parada12"),
-            position: const LatLng(7.0659946, -73.7448674),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-            infoWindow: const InfoWindow(
-                title: "UNIPAZ Centro Investigaciones Santa Lucia",
-                snippet: "Campus Universitario",
-            ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada12"),
+        position: const LatLng(7.0424402, -73.8268916),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "Parada 12",
+          snippet: "El Retén",
         ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada13"),
+        position: const LatLng(7.0659946, -73.7448674),
+        icon: _customIcon,
+        infoWindow: const InfoWindow(
+          title: "UNIPAZ Centro Investigaciones Santa Lucia",
+          snippet: "Campus Universitario",
+        ),
+      ),
     };
-}
+  }
 
   Set<Polyline> _createPolyline() {
     List<LatLng> points = [...ruta];
@@ -357,7 +416,23 @@ class _MapConductorState extends State<MapConductor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mapa del Usuario 2'),
+        title: Text(
+          'Mapa del Usuario 2',
+          style: TextStyle(color: Colors.white), // Color blanco para el texto del AppBar
+        ),
+        backgroundColor: Color.fromARGB(255, 0, 51, 122), // Color azul oscuro para AppBar
+        iconTheme: IconThemeData(color: Colors.white), // Color blanco para el icono de flecha
+        actions: [
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileConductor()),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -378,30 +453,38 @@ class _MapConductorState extends State<MapConductor> {
             },
           ),
           Positioned(
-            bottom: 16.0,
-            left: 16.0,
+            bottom: 80.0,
+            left: MediaQuery.of(context).size.width / 2 - 75,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               onPressed: _toggleLocationUpdates,
               child: Text(
                 _locationUpdatesActive ? 'DESACTIVAR GPS' : 'ACTIVAR GPS',
                 style: TextStyle(
-                  color: Color.fromARGB(247, 0, 51, 122),
+                  fontSize: 16,
+                  color: Color.fromARGB(255, 0, 51, 122), // Color azul oscuro para el texto del botón
                 ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 16.0,
+            left: 16.0,
+            child: ElevatedButton(
+              onPressed: _showOptionsDialog,
+              child: Text('Opciones'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 0, 51, 122), // Color azul oscuro para el botón de opciones
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      persistentFooterButtons: [
-        ElevatedButton(
-          onPressed: _showOptionsDialog,
-          child: Text('Opciones'),
-        ),
-      ],
     );
   }
 }

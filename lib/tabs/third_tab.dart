@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unipaz/tabs/second_tab.dart';
 
 class ThirdTab extends StatefulWidget {
   @override
@@ -10,54 +11,67 @@ class _ThirdTabState extends State<ThirdTab> {
     'Parada 1': {
       'description': 'Frente a la bomba\nSan Silvestre Av 52',
       'imagePath': 'Assets/images/paradas/parada_principal.jpg',
+      'markerId': 'parada1',
     },
     'Parada 2': {
       'description': 'Iglesia Oración\nEspíritu Santo',
       'imagePath': 'Assets/images/paradas/parada_segunda.jpg',
+      'markerId': 'parada2',
     },
     'Parada 3': {
       'description': 'Yamaha Av 52',
       'imagePath': 'Assets/images/paradas/parada_yamahamotos.jpg',
+      'markerId': 'parada3',
     },
     'Parada 4': {
       'description': 'Frente al Parque\nCamilo Torres',
       'imagePath': 'Assets/images/paradas/parada_frentedescabezado.jpg',
+      'markerId': 'parada4',
     },
     'Parada 5': {
       'description': 'Cajero Servibanca\nde la 28',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'markerId': 'parada5',
     },
     'Parada 6': {
       'description': 'Restaurante Pollo\nArabe',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'markerId': 'parada6',
     },
     'Parada 7': {
       'description': 'Intercambiador',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'markerId': 'parada7',
     },
     'Parada 8': {
       'description': 'Entrada Barrio\nYarima',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'markerId': 'parada8',
     },
     'Parada 9': {
       'description': 'El Palmar',
       'imagePath': 'Assets/images/paradas/parada_palmar.jpg',
+      'markerId': 'parada9',
     },
     'Parada 10': {
       'description': 'Bosques de la Cira',
       'imagePath': 'Assets/images/paradas/parada_bosquecira.jpg',
+      'markerId': 'parada10',
     },
     'Parada 11': {
       'description': 'Frente a Bonanza -\nBavaria',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'markerId': 'parada11',
     },
     'Parada 12': {
       'description': 'El Retén',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'markerId': 'parada12',
     },
     'Parada 13': {
-      'description': 'UNIPAZ',
+      'description': 'UNIPAZ Centro Investigaciones Santa Lucia',
       'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'markerId': 'parada13',
     },
   };
 
@@ -167,6 +181,7 @@ class _ThirdTabState extends State<ThirdTab> {
           title: route,
           description: routeData[route]?['description'] ?? '',
           imagePath: routeData[route]?['imagePath'] ?? '',
+          markerId: routeData[route]?['markerId'] ?? '',
         ),
       ),
     );
@@ -177,11 +192,13 @@ class RouteDescriptionScreen extends StatelessWidget {
   final String title;
   final String description;
   final String imagePath;
+  final String markerId; // Add markerId
 
   RouteDescriptionScreen({
     required this.title,
     required this.description,
     required this.imagePath,
+    required this.markerId, // Add markerId
   });
 
   @override
@@ -189,7 +206,7 @@ class RouteDescriptionScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
-          color: Colors.white, // Cambia el color de la flecha a blanco
+          color: Colors.white, // Change arrow color to white
         ),
         title: Text(
           title,
@@ -234,21 +251,50 @@ class RouteDescriptionScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16.0),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(247, 0, 51, 122),
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(247, 0, 51, 122),
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'Cerrar',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
                 ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Cerrar',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SecondTab(
+                          markerId: markerId,
+                          showBackButton: true, // Show back button
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Ir',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

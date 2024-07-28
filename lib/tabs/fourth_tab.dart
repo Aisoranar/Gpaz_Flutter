@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'tyc.dart'; // Asegúrate de que la ruta de importación sea correcta
 
 class FourthTab extends StatelessWidget {
   @override
@@ -50,7 +51,6 @@ class FourthTab extends StatelessWidget {
                     icon: Icons.person,
                   ),
 
-
                   // Sebastian Romero
                   _buildTeamMember(
                     name: 'Sebastian Romero',
@@ -69,6 +69,7 @@ class FourthTab extends StatelessWidget {
                   _buildAgradecimientos(),
 
                   // Resto de tu contenido...
+                  _buildTermsAndConditionsLink(context), // Agrega el enlace aquí
                 ],
               ),
             ),
@@ -143,6 +144,30 @@ class FourthTab extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTermsAndConditionsLink(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Center(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TermsAndConditionsTab()),
+            );
+          },
+          child: Text(
+            'Términos y Condiciones',
+            style: TextStyle(
+              color: const Color.fromARGB(247, 0, 51, 122),
+              decoration: TextDecoration.underline,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
