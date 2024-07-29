@@ -32,56 +32,88 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(Icons.directions_bus, color: Color.fromARGB(247, 0, 51, 122)),
-          onPressed: () {},
-        ),
-        title: Text(
-          'UNIPAZ - GPAZ ',
-          style: TextStyle(color: Colors.black),
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          _buildPopupMenuButton(),
-        ],
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          FirstTab(),          
-          ThirdTab(),
-          SecondTab(),
-          FourthTab(),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.transparent,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.0), // Ajusta la altura según sea necesario
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
+              bottomLeft: Radius.circular(30.0),
+              bottomRight: Radius.circular(30.0),
             ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black12,
                 spreadRadius: 0,
                 blurRadius: 10,
+                offset: Offset(0, 4),
               ),
             ],
           ),
-          child: TabBar(
-            controller: _tabController,
-            tabs: [
-              _buildTab(Icons.home, 'Inicio'),
-              _buildTab(Icons.location_on, 'Paradas'),
-              _buildTab(Icons.map, 'Ruta'),
-              _buildTab(Icons.group, 'Acerca de'),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0, // Elimina la sombra predeterminada del AppBar
+            leading: IconButton(
+              icon: Icon(Icons.directions_bus, color: Color.fromARGB(247, 0, 51, 122)),
+              onPressed: () {},
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(child: Container()), // Expande el espacio a la izquierda del título
+                Text(
+                  'UNIPAZ - GPAZ',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                Expanded(child: Container()), // Expande el espacio a la derecha del título
+              ],
+            ),
+            centerTitle: false, // Desactiva la alineación automática al centro
+            actions: <Widget>[
+              _buildPopupMenuButton(),
             ],
           ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          FirstTab(),
+          ThirdTab(),
+          SecondTab(),
+          FourthTab(),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              spreadRadius: 0,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: TabBar(
+          controller: _tabController,
+          indicatorColor: Color.fromARGB(247, 0, 51, 122),
+          labelColor: Color.fromARGB(247, 0, 51, 122),
+          unselectedLabelColor: Colors.grey,
+          tabs: [
+            _buildTab(Icons.home, 'Inicio'),
+            _buildTab(Icons.location_on, 'Paradas'),
+            _buildTab(Icons.map, 'Ruta'),
+            _buildTab(Icons.group, 'Acerca de'),
+          ],
         ),
       ),
     );
@@ -99,9 +131,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'login',
-          child: Text('SOY CONDUCTOR'),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'SOY CONDUCTOR',
+                style: TextStyle(
+                  color: Color.fromARGB(247, 0, 51, 122), // Azul oscuro
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.close, color: Color.fromARGB(247, 0, 51, 122)), // Azul oscuro
+                onPressed: () {
+                  Navigator.pop(context); // Cierra el menú cuando se presiona la "X"
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );

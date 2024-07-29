@@ -10,7 +10,7 @@ class _ThirdTabState extends State<ThirdTab> {
   Map<String, Map<String, dynamic>> routeData = {
     'Parada 1': {
       'description': 'Frente a la bomba\nSan Silvestre Av 52',
-      'imagePath': 'Assets/images/paradas/parada_principal.jpg',
+      'imagePath': 'Assets/images/paradas/parada1.png',
       'markerId': 'parada1',
     },
     'Parada 2': {
@@ -30,42 +30,42 @@ class _ThirdTabState extends State<ThirdTab> {
     },
     'Parada 5': {
       'description': 'Cajero Servibanca\nde la 28',
-      'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'imagePath': 'Assets/images/paradas/parada5.png',
       'markerId': 'parada5',
     },
     'Parada 6': {
       'description': 'Restaurante Pollo\nArabe',
-      'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'imagePath': 'Assets/images/paradas/parada6.png',
       'markerId': 'parada6',
     },
     'Parada 7': {
       'description': 'Intercambiador',
-      'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'imagePath': 'Assets/images/paradas/parada7.png',
       'markerId': 'parada7',
     },
     'Parada 8': {
       'description': 'Entrada Barrio\nYarima',
-      'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'imagePath': 'Assets/images/paradas/parada8.png',
       'markerId': 'parada8',
     },
     'Parada 9': {
       'description': 'El Palmar',
-      'imagePath': 'Assets/images/paradas/parada_palmar.jpg',
+      'imagePath': 'Assets/images/paradas/parada9.png',
       'markerId': 'parada9',
     },
     'Parada 10': {
       'description': 'Bosques de la Cira',
-      'imagePath': 'Assets/images/paradas/parada_bosquecira.jpg',
+      'imagePath': 'Assets/images/paradas/parada10.png',
       'markerId': 'parada10',
     },
     'Parada 11': {
       'description': 'Frente a Bonanza -\nBavaria',
-      'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'imagePath': 'Assets/images/paradas/parada11.png',
       'markerId': 'parada11',
     },
     'Parada 12': {
       'description': 'El Retén',
-      'imagePath': 'Assets/images/paradas/muypronto.jpg',
+      'imagePath': 'Assets/images/paradas/parada12.png',
       'markerId': 'parada12',
     },
     'Parada 13': {
@@ -80,37 +80,43 @@ class _ThirdTabState extends State<ThirdTab> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              decoration: BoxDecoration(
-                color: Color.fromARGB(247, 0, 51, 122),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20.0),
-                  bottomRight: Radius.circular(20.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 24.0),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(247, 0, 51, 122),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(30.0),
+                  ),
                 ),
-              ),
-              child: Center(
-                child: Text(
-                  'RUTAS',
-                  style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
+                child: Center(
+                  child: Text(
+                    'RUTAS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
                 ),
               ),
             ),
+            SizedBox(height: 20.0), // Espacio entre el encabezado y la lista
             Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (var route in routeData.keys)
+                  for (var entry in routeData.entries)
                     GestureDetector(
-                      onTap: () => _showRouteDescription(context, route),
+                      onTap: () => _showRouteDescription(context, entry.key),
                       child: _buildRouteItem(
-                        route,
-                        routeData[route]?['description'] ?? '',
-                        routeData[route]?['imagePath'] ?? '',
-                        Icons.gps_fixed,
+                        entry.key,
+                        entry.value['description'] ?? '',
+                        entry.value['imagePath'] ?? '',
+                        Icons.location_on,
                       ),
                     ),
                 ],
@@ -124,16 +130,16 @@ class _ThirdTabState extends State<ThirdTab> {
 
   Widget _buildRouteItem(String title, String subtitle, String imagePath, IconData iconData) {
     return Container(
-      margin: EdgeInsets.only(bottom: 16.0),
-      padding: EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(25.0),
-        boxShadow: [
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15.0),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 5.0,
-            offset: Offset(0, 2),
+            color: Colors.black26,
+            blurRadius: 8.0,
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -142,31 +148,36 @@ class _ThirdTabState extends State<ThirdTab> {
           Icon(
             iconData,
             color: Color.fromARGB(247, 0, 51, 122),
-            size: 30.0,
+            size: 32.0,
           ),
-          SizedBox(width: 16.0),
+          const SizedBox(width: 12.0),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          SizedBox(width: 16.0),
-          CircleAvatar(
-            radius: 30.0,
-            backgroundImage: AssetImage(imagePath),
+          const SizedBox(width: 12.0),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12.0),
+            child: Image.asset(
+              imagePath,
+              height: 60.0,
+              width: 60.0,
+              fit: BoxFit.cover,
+            ),
           ),
         ],
       ),
@@ -192,111 +203,113 @@ class RouteDescriptionScreen extends StatelessWidget {
   final String title;
   final String description;
   final String imagePath;
-  final String markerId; // Add markerId
+  final String markerId;
 
   RouteDescriptionScreen({
     required this.title,
     required this.description,
     required this.imagePath,
-    required this.markerId, // Add markerId
+    required this.markerId,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white, // Change arrow color to white
+        iconTheme: const IconThemeData(
+          color: Colors.white,
         ),
         title: Text(
           title,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(247, 0, 51, 122),
+        backgroundColor: const Color.fromARGB(247, 0, 51, 122),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
-                child: Image.asset(
-                  imagePath,
-                  height: 300.0,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Image.asset(
+                    imagePath,
+                    height: 250.0,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 16.0),
-            Container(
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(15.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 5.0,
-                    offset: Offset(0, 2),
+              const SizedBox(height: 16.0),
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15.0),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8.0,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  description,
+                  style: const TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(247, 0, 51, 122),
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Cerrar',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SecondTab(
+                            markerId: markerId,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Ver en Mapa',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
                   ),
                 ],
               ),
-              child: Text(
-                description,
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(247, 0, 51, 122),
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    'Cerrar',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SecondTab(
-                          markerId: markerId,
-                          showBackButton: true, // Show back button
-                        ),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Ir',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(height: 16.0),
+            ],
+          ),
         ),
       ),
     );

@@ -160,12 +160,12 @@ class _SecondTabState extends State<SecondTab> {
   Set<Marker> _createMarkers() {
     Set<Marker> markers = {
       Marker(
-        markerId: const MarkerId("parada4"),
-        position: const LatLng(7.0614351, -73.8533701),
+        markerId: const MarkerId("parada1"),
+        position: const LatLng(7.0619238, -73.8648762),
         icon: _customIcon,
         infoWindow: const InfoWindow(
-          title: "Parada 4",          
-          snippet: "Frente al Parque Camilo Torres",
+          title: "Parada 1",          
+          snippet: "Frente a la Bomba San Silvestre Av. 52",
         ),
       ),
       Marker(

@@ -23,8 +23,8 @@ class StartPage extends StatelessWidget {
     return IntroductionScreen(
       pages: [
         _buildPageViewModel(
-          title: "¡Bienvenido a Gpaz!",
-          body: "Tu compañero de viaje inteligente",
+          title: "¡Bienvenido a GPaz!",
+          body: "Gracias por probar nuestra aplicación. Ten en cuenta que esta es una versión beta y puede contener errores. Tu feedback es valioso para mejorar la aplicación.",
           imagePath: 'Assets/icon/isologo.png', // Ruta de la imagen para esta página
         ),
         _buildPageViewModel(

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:unipaz/components/square_tile.dart';
 import 'package:unipaz/conductor/mapconductor.dart';
 import 'package:unipaz/pages/register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -119,9 +118,9 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
 
-      if (e.code == 'Email no encontrado') {
+      if (e.code == 'email-not-found') {
         wrongEmailMessage();
-      } else if (e.code == 'Contraseña incorrecta') {
+      } else if (e.code == 'wrong-password') {
         wrongPasswordMessage();
       }
     }
@@ -145,6 +144,14 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(247, 0, 51, 122),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -159,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 80),
+                const SizedBox(height: 60),
                 const Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -171,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 80),
+                const SizedBox(height: 60),
                 const Text(
                   '¡Bienvenido de vuelta!',
                   style: TextStyle(
@@ -214,40 +221,6 @@ class _LoginPageState extends State<LoginPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-                const SizedBox(height: 50),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          'Continuar con',
-                          style: TextStyle(color: Color.fromARGB(247, 0, 51, 122)),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Color.fromARGB(255, 254, 253, 253),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 25),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SquareTile(imagePath: 'lib/images/google.png'),
-                  ],
                 ),
                 const SizedBox(height: 50),
               ],

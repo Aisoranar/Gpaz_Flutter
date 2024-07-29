@@ -5,76 +5,81 @@ class FourthTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              decoration: BoxDecoration(
-                color: Color.fromARGB(247, 0, 51, 122),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20.0),
-                  bottomRight: Radius.circular(20.0),
-                ),
+      body: ListView(
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 24.0),
+            decoration: BoxDecoration(
+              color: Color.fromARGB(247, 0, 51, 122),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30.0),
+                bottomRight: Radius.circular(30.0),
               ),
-              child: Center(
-                child: Text(
-                  'EQUIPO GPAZ',
-                  style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
+            ),
+            child: Center(
+              child: Text(
+                'EQUIPO GPAZ',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Aisor Anaya
-                  _buildTeamMember(
-                    name: 'Aisor Anaya',
-                    role: 'Desarrollador FullStack',
-                    icon: Icons.person,
-                  ),
-
-                  // Jhonis Rios
-                  _buildTeamMember(
-                    name: 'Ing. Esp. Jhonis Rios',
-                    role: 'Director',
-                    icon: Icons.person,
-                  ),
-
-                  // Karen Salom
-                  _buildTeamMember(
-                    name: 'Ing. Mag. Karen Salom',
-                    role: 'Directora',
-                    icon: Icons.person,
-                  ),
-
-                  // Sebastian Romero
-                  _buildTeamMember(
-                    name: 'Sebastian Romero',
-                    role: 'Diseñador Gráfico',
-                    icon: Icons.person,
-                  ),
-
-                  // Hadik Chavez
-                  _buildTeamMember(
-                    name: 'Hadik Chavez',
-                    role: 'Diseñador UI/UX',
-                    icon: Icons.person,
-                  ),
-
-                  // Agradecimientos
-                  _buildAgradecimientos(),
-
-                  // Resto de tu contenido...
-                  _buildTermsAndConditionsLink(context), // Agrega el enlace aquí
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 20),
+          _buildTeamMember(
+            name: 'Aisor Anaya',
+            role: 'Desarrollador FullStack',
+            icon: Icons.code,
+          ),
+          _buildTeamMember(
+            name: 'Ing. Esp. Jhonis Rios',
+            role: 'Director',
+            icon: Icons.leaderboard,
+          ),
+          _buildTeamMember(
+            name: 'Ing. Mag. Karen Salom',
+            role: 'Directora',
+            icon: Icons.star,
+          ),
+          _buildTeamMember(
+            name: 'Sebastian Romero',
+            role: 'Diseñador Gráfico',
+            icon: Icons.palette,
+          ),
+          _buildTeamMember(
+            name: 'Hadik Chavez',
+            role: 'Diseñador UI/UX',
+            icon: Icons.design_services,
+          ),
+          _buildTeamMember(
+            name: 'Ronaldo Romero',
+            role: 'Beta Tester',
+            icon: Icons.bug_report,
+          ),
+          _buildTeamMember(
+            name: 'Samuel Contreras',
+            role: 'Evaluador de Software',
+            icon: Icons.remove_red_eye,
+          ),
+          _buildTeamMember(
+            name: 'Juan Gómez',
+            role: 'Scrum Master',
+            icon: Icons.group,
+          ),
+          _buildTeamMember(
+            name: 'Luis Montaña',
+            role: 'Documentador',
+            icon: Icons.book,
+          ),
+          SizedBox(height: 24),
+          _buildAgradecimientos(),
+          SizedBox(height: 20),
+          _buildTermsAndConditionsLink(context),
+          SizedBox(height: 20), // Espacio adicional para el final de la lista
+        ],
       ),
     );
   }
@@ -86,37 +91,50 @@ class FourthTab extends StatelessWidget {
   }) {
     Color iconColor = const Color.fromARGB(247, 0, 51, 122);
 
-    // Verificar si es el director o el co-director y cambiar el color del icono
     if (role == 'Director' || role == 'Directora') {
-      iconColor = Colors.green; // Puedes cambiar este color a tu preferencia
+      iconColor = Colors.green;
     }
 
     return Container(
       margin: EdgeInsets.only(bottom: 16.0),
-      padding: EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(10.0),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6.0,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            color: iconColor, // Usar el color determinado según el rol
+            color: iconColor,
             size: 30.0,
           ),
-          SizedBox(width: 16.0),
+          SizedBox(width: 12.0),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 name,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
-              SizedBox(height: 8.0),
+              SizedBox(height: 4.0),
               Text(
                 role,
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
               ),
             ],
           ),
@@ -126,45 +144,59 @@ class FourthTab extends StatelessWidget {
   }
 
   Widget _buildAgradecimientos() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: Text(
+    return Container(
+      padding: EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6.0,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
             'AGRADECIMIENTOS',
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(247, 0, 51, 122),
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
+          SizedBox(height: 8.0),
+          Text(
             'Queremos expresar nuestro agradecimiento a los estudiantes del 9no semestre 2024-A Diurno, cuya valiosa contribución ha sido fundamental para hacer realidad este proyecto.',
-            style: TextStyle(fontSize: 14.0),
+            style: TextStyle(
+              fontSize: 14.0,
+              color: Colors.black87,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildTermsAndConditionsLink(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: Center(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => TermsAndConditionsTab()),
-            );
-          },
-          child: Text(
-            'Términos y Condiciones',
-            style: TextStyle(
-              color: const Color.fromARGB(247, 0, 51, 122),
-              decoration: TextDecoration.underline,
-              fontSize: 16,
-            ),
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TermsAndConditionsTab()),
+          );
+        },
+        child: Text(
+          'Términos y Condiciones',
+          style: TextStyle(
+            color: Color.fromARGB(247, 0, 51, 122),
+            decoration: TextDecoration.underline,
+            fontSize: 16,
+            fontWeight: FontWeight.w500, // Peso de fuente moderado
           ),
         ),
       ),

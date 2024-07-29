@@ -1,6 +1,11 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ProfileConductor extends StatefulWidget {
   @override
@@ -8,243 +13,334 @@ class ProfileConductor extends StatefulWidget {
 }
 
 class _ProfileConductorState extends State<ProfileConductor> {
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final plateController = TextEditingController();
-  final surnameController = TextEditingController();
-  final phoneController = TextEditingController();
-
-  bool isEditing = false;
-  User? user;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  late User _user;
+  Map<String, dynamic>? _userData;
+  bool _isLoading = true;
+  String _errorMessage = '';
+  File? _imageFile;
+  bool _isEditing = false;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _plateController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    user = FirebaseAuth.instance.currentUser;
+    _user = _auth.currentUser!;
     _loadUserData();
   }
 
   Future<void> _loadUserData() async {
-    if (user != null) {
-      DocumentSnapshot userData = await FirebaseFirestore.instance
-          .collection('Conductores')
-          .doc(user!.uid)
-          .get();
-
-      if (userData.exists) {
+    try {
+      DocumentReference userDocRef = _firestore.collection('users').doc(_user.uid);
+      DocumentSnapshot userDoc = await userDocRef.get();
+      if (userDoc.exists) {
         setState(() {
-          nameController.text = userData['nombre'];
-          emailController.text = userData['correo'];
-          plateController.text = userData['placa'];
-          surnameController.text = userData['apellido'];
-          phoneController.text = userData['telefono'];
+          _userData = userDoc.data() as Map<String, dynamic>?;
+          _nameController.text = _userData?['name'] ?? '';
+          _plateController.text = _userData?['plate'] ?? '';
+          _emailController.text = _userData?['email'] ?? '';
+          _phoneController.text = _userData?['phone'] ?? '';
+          _isLoading = false;
+        });
+      } else {
+        // Documento no existe, se creará uno
+        await userDocRef.set({
+          'name': '',
+          'plate': '',
+          'profile_image': '',
+          'email': '',  // Añadido para almacenar el correo
+          'phone': '',  // Añadido para almacenar el número de teléfono
+        });
+        setState(() {
+          _userData = {'name': '', 'plate': '', 'profile_image': '', 'email': '', 'phone': ''};
+          _isLoading = false;
         });
       }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error al cargar los datos: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _requestPermissions() async {
+    var status = await Permission.camera.request();
+    if (status.isGranted) {
+      _pickImage();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso para acceder a la cámara no concedido')),
+      );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      // Crop the image
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        maxWidth: 800,
+        maxHeight: 800,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 80,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Recortar Imagen',
+            toolbarColor: Color.fromARGB(247, 0, 51, 122),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            title: 'Recortar Imagen',
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.original,
+            ],
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        setState(() {
+          _imageFile = File(croppedFile.path);
+        });
+        _uploadImage();
+      }
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_imageFile == null) return;
+
+    try {
+      String fileName = 'profile_images/${_user.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      Reference ref = _storage.ref().child(fileName);
+      UploadTask uploadTask = ref.putFile(_imageFile!);
+
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        print('Upload progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}%');
+      });
+
+      TaskSnapshot taskSnapshot = await uploadTask;
+      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+
+      DocumentReference userDocRef = _firestore.collection('users').doc(_user.uid);
+      DocumentSnapshot userDoc = await userDocRef.get();
+      if (userDoc.exists) {
+        await userDocRef.update({'profile_image': downloadUrl});
+        setState(() {
+          _userData?['profile_image'] = downloadUrl;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Imagen actualizada exitosamente')),
+        );
+      } else {
+        await userDocRef.set({
+          'profile_image': downloadUrl,
+        });
+        setState(() {
+          _userData?['profile_image'] = downloadUrl;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Imagen guardada exitosamente')),
+        );
+      }
+    } catch (e) {
+      print('Error al subir la imagen: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al subir la imagen')),
+      );
     }
   }
 
   Future<void> _updateUserData() async {
-    if (user != null) {
-      try {
-        await FirebaseFirestore.instance.collection('Conductores').doc(user!.uid).update({
-          'nombre': nameController.text,
-          'correo': emailController.text,
-          'placa': plateController.text,
-          'apellido': surnameController.text,
-          'telefono': phoneController.text,
-        });
-        _showSnackBar('Datos guardados correctamente');
-      } catch (e) {
-        _showSnackBar('Error al guardar los datos: $e');
-      }
+    if (_nameController.text.isEmpty || _plateController.text.isEmpty || _emailController.text.isEmpty || _phoneController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor, complete todos los campos')),
+      );
+      return;
     }
-  }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    try {
+      await _firestore.collection('users').doc(_user.uid).update({
+        'name': _nameController.text,
+        'plate': _plateController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+      });
+      setState(() {
+        _userData?['name'] = _nameController.text;
+        _userData?['plate'] = _plateController.text;
+        _userData?['email'] = _emailController.text;
+        _userData?['phone'] = _phoneController.text;
+        _isEditing = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Datos actualizados exitosamente')),
+      );
+    } catch (e) {
+      print('Error al actualizar los datos: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Perfil del Conductor',
-          style: TextStyle(color: Colors.white),
+        title: Text('Perfil del Conductor', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        backgroundColor: Color.fromARGB(247, 0, 51, 122),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: Color.fromARGB(255, 0, 51, 122),
-        iconTheme: IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: isEditing ? () async {
-              await _updateUserData();
-              setState(() {
-                isEditing = false;
-              });
-            } : null,
-          ),
-        ],
       ),
-      body: FutureBuilder(
-        future: _loadUserData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error al cargar los datos'));
-          } else {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  MyTextField(
-                    controller: nameController,
-                    hintText: 'Nombre del Conductor',
-                    obscureText: false,
-                    prefixIcon: Icon(Icons.person),
-                    iconColor: Color.fromARGB(247, 0, 51, 122),
-                    enabled: isEditing,
-                  ),
-                  SizedBox(height: 10),
-                  MyTextField(
-                    controller: surnameController,
-                    hintText: 'Apellido del Conductor',
-                    obscureText: false,
-                    prefixIcon: Icon(Icons.person_outline),
-                    iconColor: Color.fromARGB(247, 0, 51, 122),
-                    enabled: isEditing,
-                  ),
-                  SizedBox(height: 10),
-                  MyTextField(
-                    controller: emailController,
-                    hintText: 'Correo Electrónico',
-                    obscureText: false,
-                    prefixIcon: Icon(Icons.email),
-                    iconColor: Color.fromARGB(247, 0, 51, 122),
-                    enabled: isEditing,
-                  ),
-                  SizedBox(height: 10),
-                  MyTextField(
-                    controller: plateController,
-                    hintText: 'Placa del Vehículo',
-                    obscureText: false,
-                    prefixIcon: Icon(Icons.directions_car),
-                    iconColor: Color.fromARGB(247, 0, 51, 122),
-                    enabled: isEditing,
-                  ),
-                  SizedBox(height: 10),
-                  MyTextField(
-                    controller: phoneController,
-                    hintText: 'Teléfono',
-                    obscureText: false,
-                    prefixIcon: Icon(Icons.phone),
-                    iconColor: Color.fromARGB(247, 0, 51, 122),
-                    enabled: isEditing,
-                  ),
-                  SizedBox(height: 20),
-                  isEditing
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            MyButton(
-                              onTap: () {
-                                setState(() {
-                                  isEditing = false;
-                                });
-                                _loadUserData(); // Reset data if cancel
-                              },
-                              buttonColor: Colors.grey,
-                              buttonText: 'Cancelar',
-                            ),
-                            MyButton(
-                              onTap: () async {
-                                await _updateUserData();
-                                setState(() {
-                                  isEditing = false;
-                                });
-                              },
-                              buttonColor: Color.fromARGB(247, 0, 51, 122),
-                              buttonText: 'Guardar',
-                            ),
-                          ],
-                        )
-                      : MyButton(
-                          onTap: () {
-                            setState(() {
-                              isEditing = true;
-                            });
-                          },
-                          buttonColor: Color.fromARGB(247, 0, 51, 122),
-                          buttonText: 'Editar',
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+              ? Center(child: Text(_errorMessage, style: TextStyle(color: Colors.red, fontSize: 18)))
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
+                    children: [
+                      Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Stack(
+                                children: [
+                                  ClipOval(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Color.fromARGB(247, 0, 51, 122), width: 4),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 90,
+                                        backgroundColor: Colors.grey[200],
+                                        backgroundImage: _imageFile != null
+                                            ? FileImage(_imageFile!)
+                                            : (_userData?['profile_image'] != null
+                                                ? NetworkImage(_userData!['profile_image']) as ImageProvider<Object>?
+                                                : null),
+                                        child: _imageFile == null && _userData?['profile_image'] == null
+                                            ? Icon(Icons.person, size: 90, color: Colors.grey)
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (_isEditing) 
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: _requestPermissions,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.circular(50),
+                                          ),
+                                          padding: EdgeInsets.all(8),
+                                          child: Icon(Icons.edit, color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              SizedBox(height: 20),
+                              _buildTextField(_nameController, 'Nombre', Icons.person),
+                              SizedBox(height: 10),
+                              _buildTextField(_plateController, 'Placa del Vehículo', Icons.directions_car),
+                              SizedBox(height: 10),
+                              _buildTextField(_emailController, 'Correo Electrónico', Icons.email),
+                              SizedBox(height: 10),
+                              _buildTextField(_phoneController, 'Número de Teléfono', Icons.phone),
+                              SizedBox(height: 20),
+                              _isEditing
+                                  ? Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: _updateUserData,
+                                          child: Text('Guardar Cambios'),
+                                          style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.white, backgroundColor: Color.fromARGB(247, 0, 51, 122),
+                                          ),
+                                        ),
+                                        SizedBox(width: 20),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _isEditing = false;
+                                            });
+                                          },
+                                          child: Text('Cancelar'),
+                                          style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.white, backgroundColor: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isEditing = true;
+                                        });
+                                      },
+                                      child: Text('Editar Perfil'),
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.white, backgroundColor: Color.fromARGB(247, 0, 51, 122),
+                                      ),
+                                    ),
+                            ],
+                          ),
                         ),
-                ],
-              ),
-            );
-          }
-        },
-      ),
+                      ),
+                    ],
+                  ),
+                ),
     );
   }
-}
 
-class MyTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hintText;
-  final bool obscureText;
-  final Icon prefixIcon;
-  final Color iconColor;
-  final bool enabled;
-
-  MyTextField({
-    required this.controller,
-    required this.hintText,
-    required this.obscureText,
-    required this.prefixIcon,
-    required this.iconColor,
-    required this.enabled,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTextField(TextEditingController controller, String labelText, IconData icon) {
     return TextField(
       controller: controller,
-      obscureText: obscureText,
-      enabled: enabled,
+      enabled: _isEditing,
       decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: Icon(
-          prefixIcon.icon,
-          color: iconColor,
-        ),
+        labelText: labelText,
+        prefixIcon: Icon(icon, color: Color.fromARGB(247, 0, 51, 122)),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Color.fromARGB(247, 0, 51, 122), width: 2),
         ),
-        filled: true,
-        fillColor: Colors.white,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Color.fromARGB(247, 0, 51, 122), width: 2),
+        ),
       ),
-    );
-  }
-}
-
-class MyButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final Color buttonColor;
-  final String buttonText;
-
-  MyButton({required this.onTap, required this.buttonColor, required this.buttonText});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onTap,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: buttonColor,
-      ),
-      child: Text(
-        buttonText,
-        style: TextStyle(color: Colors.white),
-      ),
+      style: TextStyle(color: Color.fromARGB(247, 0, 51, 122)),
     );
   }
 }

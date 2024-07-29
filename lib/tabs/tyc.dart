@@ -28,6 +28,7 @@ class TermsAndConditionsTab extends StatelessWidget {
                     child: Text(
                       'TÉRMINOS Y CONDICIONES',
                       style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
