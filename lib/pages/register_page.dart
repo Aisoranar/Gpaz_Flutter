@@ -171,6 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'plate': plateController.text,
         'phone': phoneController.text,
         'profile_image': '', // Default empty URL
+        'role': 'conductor', // Adding role as conductor
       });
 
       if (_imageFile != null) {

@@ -282,7 +282,29 @@ class RouteDescriptionScreen extends StatelessWidget {
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
-                  
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SecondTab(
+                            markerId: markerId,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Ver en Mapa',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16.0),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:unipaz/conductor/mapconductor.dart';
 import 'package:unipaz/pages/register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:location/location.dart';
 
 class MyButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -95,6 +97,61 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('password', password);
   }
 
+  Future<void> _updateDriverLocation() async {
+    Location location = Location();
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+
+    try {
+      _serviceEnabled = await location.serviceEnabled();
+      if (!_serviceEnabled) {
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          throw Exception('El servicio de ubicación está desactivado.');
+        }
+      }
+
+      _permissionGranted = await location.hasPermission();
+      if (_permissionGranted == PermissionStatus.denied) {
+        _permissionGranted = await location.requestPermission();
+        if (_permissionGranted != PermissionStatus.granted) {
+          throw Exception('Permiso de ubicación denegado.');
+        }
+      }
+
+      _locationData = await location.getLocation();
+
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        String userName = userDoc['name'] ?? 'Conductor';
+
+        await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).set({
+          'latitude': _locationData.latitude,
+          'longitude': _locationData.longitude,
+          'timestamp': FieldValue.serverTimestamp(),
+          'name': 'Conductor $userName', // Usando el nombre del usuario desde Firestore
+        });
+      }
+    } catch (e) {
+      print('Error al actualizar la ubicación: $e');
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('No se pudo actualizar la ubicación.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   void signUserIn() async {
     showDialog(
       context: context,
@@ -108,6 +165,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       await _saveUserCredentials(emailController.text, passwordController.text);
+      await _updateDriverLocation();
 
       Navigator.pop(context);
 
@@ -118,25 +176,29 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
 
-      if (e.code == 'email-not-found') {
-        wrongEmailMessage();
+      if (e.code == 'user-not-found') {
+        showError('Correo no encontrado');
       } else if (e.code == 'wrong-password') {
-        wrongPasswordMessage();
+        showError('Contraseña Incorrecta');
+      } else {
+        showError(e.message!);
       }
     }
   }
 
-  void wrongEmailMessage() {
+  void showError(String message) {
     showDialog(
       context: context,
-      builder: (context) => const AlertDialog(title: Text('Correo no encontrado')),
-    );
-  }
-
-  void wrongPasswordMessage() {
-    showDialog(
-      context: context,
-      builder: (context) => const AlertDialog(title: Text('Contraseña Incorrecta')),
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -211,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => RegisterPage()), // Navegar a la página de registro.
+                      MaterialPageRoute(builder: (context) => RegisterPage()),
                     );
                   },
                   child: Text(
@@ -230,10 +292,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: LoginPage(),
-  ));
 }

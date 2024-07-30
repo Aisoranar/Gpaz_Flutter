@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
-import 'package:unipaz/notifications/notificationsManager.dart';
 import 'package:unipaz/conductor/profileconductor.dart';
 
 class MapConductor extends StatefulWidget {
@@ -13,418 +12,185 @@ class MapConductor extends StatefulWidget {
 }
 
 class _MapConductorState extends State<MapConductor> {
-  Completer<GoogleMapController> _controller = Completer();
-  late LatLng _user2Location;
-  late LatLng _previousLocation;
-  late bool _locationUpdatesActive;
+  late GoogleMapController _mapController;
+  final Set<Marker> _markers = {};
+  LatLng _currentPosition = LatLng(0, 0); // Inicialización predeterminada
+  final Location _location = Location();
+  late String _driverPlate;
+  bool _isTracking = false;
+
   late StreamSubscription<LocationData> _locationSubscription;
-  late Marker _user2Marker;
-  late Set<Marker> _markers;
-  late Set<Polyline> _polylines;
-  late BitmapDescriptor _customIcon;
-  late BitmapDescriptor _user2Icon;
-  double _rotation = 0;
 
   @override
   void initState() {
     super.initState();
-    _locationUpdatesActive = false;
-    _previousLocation = LatLng(0, 0);
-    _loadCustomIcons().then((_) {
-      setState(() {
-        _user2Marker = Marker(
-          markerId: MarkerId('user2Marker'),
-          position: LatLng(0, 0), // Posición inicial, será actualizada en tiempo real
-          infoWindow: InfoWindow(title: 'Usuario 2'),
-          icon: _user2Icon,
-          rotation: _rotation,
-        );
-        _markers = _createMarkers();
-      });
-    });
-    _user2Location = LatLng(0, 0);
-    _polylines = _createPolyline();
-    _getUser2Location();
+    _fetchDriverPlate();
+    _getCurrentLocation();
+    _listenToDriverLocation();
   }
 
-  Future<void> _loadCustomIcons() async {
-    _customIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),  // Tamaño ajustado
-      'Assets/icon/gpsiconparada.png',
-    );
-
-    _user2Icon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),  // Tamaño ajustado
-      'Assets/icon/cotsem.png',
-    );
-  }
-
-  Future<void> _getUser2Location() async {
-    LocationData locationData = await Location().getLocation();
-    setState(() {
-      _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
-      _previousLocation = _user2Location;
-      _user2Marker = _user2Marker.copyWith(positionParam: _user2Location);
-      _animateCameraToUser2(); // Animar la cámara para seguir al usuario2
-    });
-  }
-
-  void _toggleLocationUpdates() {
-    if (_locationUpdatesActive) {
-      _locationSubscription.cancel();
-      _clearUserLocation();
-      notificationsManager.showNotification(
-        'GPS Desactivado',
-        'Se ha desactivado el GPS correctamente.',
-      );
-      notificationsManager.showGlobalNotification(
-        'Bus Desconectado',
-        'El bus ha finalizado el trayecto.',
-      );
-      notificationsManager.showGlobalNotification(
-        'Conductor Finalizó Ruta',
-        'El conductor ha finalizado la ruta.',
-      );
-    } else {
-      _startLocationUpdates();
-      notificationsManager.showNotification(
-        'GPS Activado',
-        'Se ha activado el GPS correctamente.',
-      );
-      notificationsManager.showGlobalNotification(
-        'Bus Conectado',
-        'El bus está en camino. ¡Prepárate!',
-      );
-      notificationsManager.showGlobalNotification(
-        'Conductor en Camino',
-        'El conductor va en camino.',
-      );
+  Future<void> _fetchDriverPlate() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        setState(() {
+          _driverPlate = userDoc['plate'] ?? 'Placa no disponible';
+        });
+      }
     }
+  }
+
+  void _getCurrentLocation() async {
+    final LocationData _locationData = await _location.getLocation();
     setState(() {
-      _locationUpdatesActive = !_locationUpdatesActive;
+      _currentPosition = LatLng(_locationData.latitude!, _locationData.longitude!);
+      _addOrUpdateMarker(_currentPosition, _driverPlate);
+      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 12)); // Menos zoom inicial
     });
   }
 
-  void _startLocationUpdates() {
-    _locationSubscription =
-        Location().onLocationChanged.listen((LocationData locationData) {
-      setState(() {
-        _previousLocation = _user2Location;
-        _user2Location = LatLng(locationData.latitude!, locationData.longitude!);
-        _rotation = _calculateRotation(_previousLocation, _user2Location);
-        _user2Marker = _user2Marker.copyWith(
-          positionParam: _user2Location,
-          rotationParam: _rotation,
-        );
-        _animateCameraToUser2(); // Animar la cámara para seguir al usuario2
-      });
-
-      FirebaseFirestore.instance
-          .collection('ubicaciones')
-          .doc('user2')
-          .set({
-        'latitud': locationData.latitude,
-        'longitud': locationData.longitude,
-      });
-    });
-  }
-
-  double _calculateRotation(LatLng start, LatLng end) {
-    final double lat1 = start.latitude * pi / 180.0;
-    final double lng1 = start.longitude * pi / 180.0;
-    final double lat2 = end.latitude * pi / 180.0;
-    final double lng2 = end.longitude * pi / 180.0;
-
-    final double dLon = lng2 - lng1;
-
-    final double y = sin(dLon) * cos(lat2);
-    final double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
-    final double bearing = atan2(y, x);
-
-    return (bearing * 180.0 / pi + 360) % 360;
-  }
-
-  void _clearUserLocation() {
-    FirebaseFirestore.instance.collection('ubicaciones').doc('user2').delete();
-    setState(() {
-      _user2Location = LatLng(0, 0);
-    });
-  }
-
-  void _showOptionsDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Selecciona una opción'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  _sendNotification('Estoy lleno', 'El bus está lleno.');
-                  notificationsManager.showGlobalNotification(
-                    'Bus Lleno',
-                    'El bus no tiene más espacio disponible.'
-                  );
-                  Navigator.pop(context);
-                },
-                child: Text('Estoy lleno'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
+  void _listenToDriverLocation() {
+    FirebaseFirestore.instance.collection('driver_locations').snapshots().listen((snapshot) {
+      try {
+        if (snapshot.docs.isNotEmpty) {
+          final newMarkers = <Marker>{};
+          for (var doc in snapshot.docs) {
+            final data = doc.data() as Map<String, dynamic>; // Conversión explícita
+            if (data != null) {
+              final LatLng position = LatLng(data['latitude'], data['longitude']);
+              final String plate = data['plate'] ?? 'Placa no disponible';
+              final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
+              newMarkers.add(
+                Marker(
+                  markerId: MarkerId(doc.id),
+                  position: position,
+                  infoWindow: InfoWindow(
+                    title: 'Conductor $plate',
+                    snippet: message, // Mostrar el mensaje de la notificación aquí
+                  ),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
                 ),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  _sendNotification('Tengo problemas', 'Se ha presentado un problema.');
-                  notificationsManager.showGlobalNotification(
-                    'Problemas en el Bus',
-                    'El bus está experimentando dificultades técnicas.'
-                  );
-                  Navigator.pop(context);
-                },
-                child: Text('Tengo problemas'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
+              );
+            }
+          }
+          setState(() {
+            _markers.clear();
+            _markers.addAll(newMarkers);
+            // Mover el mapa al nuevo marcador con menos zoom
+            if (_mapController != null && _markers.isNotEmpty) {
+              LatLngBounds bounds = LatLngBounds(
+                southwest: LatLng(
+                  _markers.map((m) => m.position.latitude).reduce((a, b) => a < b ? a : b),
+                  _markers.map((m) => m.position.longitude).reduce((a, b) => a < b ? a : b),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+                northeast: LatLng(
+                  _markers.map((m) => m.position.latitude).reduce((a, b) => a > b ? a : b),
+                  _markers.map((m) => m.position.longitude).reduce((a, b) => a > b ? a : b),
+                ),
+              );
+              _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50)); // Menos zoom al ajustar los límites
+            }
+          });
+        }
+      } catch (e) {
+        print('Error al actualizar la ubicación: $e');
+      }
+    });
+  }
+
+  void _addOrUpdateMarker(LatLng position, String plate) {
+    final marker = Marker(
+      markerId: MarkerId('current_location'),
+      position: position,
+      infoWindow: InfoWindow(
+        title: 'Conductor $plate',
+        snippet: 'Ubicación actual',
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
     );
+    setState(() {
+      _markers.add(marker);
+      // Mover el mapa al nuevo marcador con menos zoom
+      if (_mapController != null) {
+        _mapController.animateCamera(CameraUpdate.newLatLng(position));
+      }
+    });
   }
 
-  void _sendNotification(String title, String message) {
-    notificationsManager.showNotification(title, message);
+  void _toggleTracking() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      if (_isTracking) {
+        // Desactivar el seguimiento
+        FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
+        _locationSubscription.cancel();
+      } else {
+        // Activar el seguimiento
+        _locationSubscription = _location.onLocationChanged.listen((LocationData newLocation) async {
+          LatLng newPosition = LatLng(newLocation.latitude!, newLocation.longitude!);
+          await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).set({
+            'latitude': newLocation.latitude,
+            'longitude': newLocation.longitude,
+            'plate': _driverPlate,
+            // No se actualiza el mensaje aquí
+          }, SetOptions(merge: true)); // Merged update to avoid overwriting the message
+          _addOrUpdateMarker(newPosition, _driverPlate);
+        });
+      }
+      setState(() {
+        _isTracking = !_isTracking;
+      });
+    }
   }
 
-  void _animateCameraToUser2() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: _user2Location,
-        zoom: 14.0,
-      ),
-    ));
-  }
+  Future<void> _sendNotification(String message) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        // Validar si el mensaje es uno de los predefinidos
+        const allowedMessages = [
+          'Disponible',
+          'No disponible',
+          'Asientos no disponibles',
+          'Sin cupos',
+          'Tengo problemas'
+        ];
 
-  @override
-  void dispose() {
-    _locationSubscription.cancel();
-    super.dispose();
-  }
+        if (allowedMessages.contains(message)) {
+          // Primero, actualizar la notificación
+          await FirebaseFirestore.instance.collection('notifications').add({
+            'user_id': user.uid,
+            'plate': _driverPlate,
+            'message': message,
+            'timestamp': FieldValue.serverTimestamp(),
+          });
 
-  Set<Marker> _createMarkers() {
-    return <Marker>{
-      Marker(
-        markerId: const MarkerId("parada1"),
-        position: const LatLng(7.0619238, -73.8648762),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 1",
-          snippet: "Frente a la Bomba San Silvestre Av. 52",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada2"),
-        position: const LatLng(7.061706, -73.8595833),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 2",
-          snippet: "Iglesia Oración Espíritu Santo",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada3"),
-        position: const LatLng(7.0612446, -73.8565249),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 3",
-          snippet: "Yamaha Av 52",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada4"),
-        position: const LatLng(7.0614351, -73.8533701),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 4",          
-          snippet: "Frente al Parque Camilo Torres",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada5"),
-        position: const LatLng(7.0599965, -73.8513638),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 5",
-          snippet: "Cajero Servibanca de la 28",        
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada6"),
-        position: const LatLng(7.0573063, -73.8506163),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 6",
-          snippet: "Restaurante Pollo Arabe",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada7"),
-        position: const LatLng(7.0505295, -73.8472625),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 7",
-          snippet: "Intercambiador",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada8"),
-        position: const LatLng(7.050025, -73.8405155),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 8",
-          snippet: "Entrada Barrio Yarima",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada9"),
-        position: const LatLng(7.0436381, -73.8363577),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 9",
-          snippet: "El Palmar",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada10"),
-        position: const LatLng(7.0422154, -73.83111),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 10",
-          snippet: "Bosques de la Cira",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada11"),
-        position: const LatLng(7.0421841, -73.8290742),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 11",
-          snippet: "Frente a Bonanza - Bavaria",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada12"),
-        position: const LatLng(7.0424402, -73.8268916),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "Parada 12",
-          snippet: "El Retén",
-        ),
-      ),
-      Marker(
-        markerId: const MarkerId("parada13"),
-        position: const LatLng(7.0659946, -73.7448674),
-        icon: _customIcon,
-        infoWindow: const InfoWindow(
-          title: "UNIPAZ Centro Investigaciones Santa Lucia",
-          snippet: "Campus Universitario",
-        ),
-      ),
-    };
+          // Luego, actualizar el mensaje en la colección driver_locations
+          await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).update({
+            'message': message,
+          });
+        } else {
+          print('Mensaje no permitido: $message');
+        }
+      } catch (e) {
+        print('Error al enviar notificación: $e');
+      }
+    }
   }
-
-  Set<Polyline> _createPolyline() {
-    List<LatLng> points = [...ruta];
-    return Set<Polyline>.from([
-      Polyline(
-        polylineId: PolylineId('ruta'),
-        points: points,
-        color: Colors.blue,
-        width: 6,
-      ),
-    ]);
-  }
-
-  // Lista de puntos de ruta
-  List<LatLng> ruta = [
-    LatLng(7.0619238, -73.8648762), // 1RA
-    LatLng(7.06223, -73.86169), // hotel vizcaya plaza
-    LatLng(7.061706, -73.8595833), // 2da
-    LatLng(7.06121, -73.85583), // estacion del trebol
-    LatLng(7.06151, -73.85373), // 3ra park camilo torres
-    LatLng(7.06176, -73.85193), // esquina tieda D1
-    LatLng(7.06017, -73.85151), //  4ta parada
-    LatLng(7.05411, -73.84963), // Ruta 66
-    LatLng(7.05265, -73.84865), // bosque monastery
-    LatLng(7.05105, -73.84790), // Hotel Rm
-    LatLng(7.05058, -73.84720), //  Cantabra
-    LatLng(7.05065, -73.84661), //  Cantabra parq
-    LatLng(7.05108, -73.84579), //  Diagonal 36
-    LatLng(7.05103, -73.84255), //  Dinastia china
-    LatLng(7.04998, -73.84055), //  Autos Yarima
-    LatLng(7.04898, -73.83968), //  Almacen y taller moto sebas
-    LatLng(7.04740, -73.83869), //  Imperio del marmol
-    LatLng(7.04644, -73.83815), //  Cilcars compraventa
-    LatLng(7.04565, -73.83742), //  Casa marmol
-    LatLng(7.04440, -73.83723), //  Willi club
-    LatLng(7.04179, -73.83405), //  Retorno el vivero
-    LatLng(7.04160, -73.83345), //  Retorno 2
-    LatLng(7.04248, -73.83016), //  Bavaria 1
-    LatLng(7.04238, -73.82951), //  Bavaria 2
-    LatLng(7.04212, -73.82876), //  Bavaria 3
-    LatLng(7.04224, -73.82836), //  Bavaria 4
-    LatLng(7.04425, -73.81378), //  Altoque Bca
-    LatLng(7.04468, -73.81261), //  Altoque Bca 2
-    LatLng(7.04736, -73.80610), //  Mina pakistan 1
-    LatLng(7.04746, -73.80509), //  Mina p 2
-    LatLng(7.04730, -73.78495), //  Intercambiador la virgen
-    LatLng(7.04694, -73.78296), //  Int 2
-    LatLng(7.04689, -73.78200), //  Int 3
-    LatLng(7.04654, -73.78100), //  Int 4
-    LatLng(7.04602, -73.78041), //  int 5
-    LatLng(7.04572, -73.78020), //  int 6
-    LatLng(7.04350, -73.77793), //  Doble calzada
-    LatLng(7.04312, -73.77706), //  Doble cal 2
-    LatLng(7.04314, -73.77621), //  Doble 3
-    LatLng(7.04506, -73.76549), //  Villa cristal
-    LatLng(7.04509, -73.76450), //  Rest el corral
-    LatLng(7.04493, -73.75456), //  Avenida via 1
-    LatLng(7.04524, -73.75343), //  Avn 2
-    LatLng(7.04587, -73.75261), //  Avn 3
-    LatLng(7.05207, -73.74717), //  Avn f4
-    LatLng(7.05316, -73.74685), //  Avn i5
-    LatLng(7.05470, -73.74708), //  Avn i6
-    LatLng(7.05923, -73.74799), // avn 7
-    LatLng(7.06068, -73.74749), //  Avn quebrada reposo
-    LatLng(7.06556, -73.74502), //  avn estadio unipaz
-    LatLng(7.06636, -73.74396), //  avn est 2
-    LatLng(7.07392, -73.73214), //  avn retorno
-    LatLng(7.07130, -73.73695), //  Avn retorno 2
-    LatLng(7.06863, -73.74062), //  avn ret 3
-    LatLng(7.06606, -73.74476), //  avn ret 4
-    LatLng(7.06690, -73.74550), //  entrada unipaz
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Mapa del Usuario 2',
-          style: TextStyle(color: Colors.white), // Color blanco para el texto del AppBar
+          'Mapa del Conductor',
+          style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 0, 51, 122), // Color azul oscuro para AppBar
-        iconTheme: IconThemeData(color: Colors.white), // Color blanco para el icono de flecha
+        backgroundColor: Color.fromARGB(255, 0, 51, 122),
         actions: [
           IconButton(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
@@ -433,58 +199,120 @@ class _MapConductorState extends State<MapConductor> {
             },
           ),
         ],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Stack(
         children: [
           GoogleMap(
-            mapType: MapType.normal,
             initialCameraPosition: CameraPosition(
-              target: _user2Location,
-              zoom: 14.0,
+              target: _currentPosition,
+              zoom: 12, // Menos zoom inicial
             ),
+            markers: _markers,
             onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-            },
-            markers: {..._markers, _user2Marker},
-            polylines: _polylines,
-            myLocationEnabled: true,
-            onCameraMove: (CameraPosition position) {
-              // Puedes agregar lógica adicional al mover el mapa si es necesario
+              _mapController = controller;
+              // Mover el mapa al inicio de la ubicación actual con menos zoom
+              _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 12));
             },
           ),
           Positioned(
-            bottom: 80.0,
-            left: MediaQuery.of(context).size.width / 2 - 75,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            bottom: 140,
+            left: 20,
+            child: ElevatedButton.icon(
+              onPressed: _toggleTracking,
+              icon: Icon(
+                _isTracking ? Icons.location_off : Icons.location_on,
+                color: Colors.white,
               ),
-              onPressed: _toggleLocationUpdates,
-              child: Text(
-                _locationUpdatesActive ? 'DESACTIVAR GPS' : 'ACTIVAR GPS',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color.fromARGB(255, 0, 51, 122), // Color azul oscuro para el texto del botón
+              label: Text(
+                _isTracking ? 'Apagar Ubicación' : 'Activar Ubicación',
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 0, 51, 122),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               ),
             ),
           ),
           Positioned(
-            bottom: 16.0,
-            left: 16.0,
+            bottom: 80,
+            left: 20,
             child: ElevatedButton(
-              onPressed: _showOptionsDialog,
-              child: Text('Opciones'),
+              onPressed: _showNotificationDialog,
+              child: Text(
+                'Activar Notificación',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 0, 51, 122), // Color azul oscuro para el botón de opciones
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                backgroundColor: Color.fromARGB(255, 0, 51, 122),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showNotificationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enviar Notificación'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Disponible');
+                  Navigator.of(context).pop();
+                },
+                child: Text('Disponible'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('No disponible');
+                  Navigator.of(context).pop();
+                },
+                child: Text('No disponible'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Asientos no disponibles');
+                  Navigator.of(context).pop();
+                },
+                child: Text('Asientos no disponibles'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Sin cupos');
+                  Navigator.of(context).pop();
+                },
+                child: Text('Sin cupos'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _sendNotification('Tengo problemas');
+                  Navigator.of(context).pop();
+                },
+                child: Text('Tengo problemas'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
