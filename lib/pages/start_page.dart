@@ -11,7 +11,7 @@ void main() async {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     title: 'Material App',
-    home: isFirstLaunch ? StartPage() : HomePage(),
+    home: isFirstLaunch ? const StartPage() : const HomePage(),
   ));
 }
 
@@ -49,7 +49,7 @@ class StartPage extends StatelessWidget {
         await prefs.setBool('isFirstLaunch', false);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
       },
       onSkip: () async {
@@ -57,7 +57,7 @@ class StartPage extends StatelessWidget {
         await prefs.setBool('isFirstLaunch', false);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
       },
       showSkipButton: true,
@@ -69,14 +69,14 @@ class StartPage extends StatelessWidget {
           await prefs.setBool('isFirstLaunch', false);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(builder: (context) => const HomePage()),
           );
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color.fromARGB(247, 0, 51, 122),
-          minimumSize: Size(120, 40), // Ajusta el tamaño mínimo del botón
+          backgroundColor: const Color.fromARGB(247, 0, 51, 122),
+          minimumSize: const Size(120, 40), // Ajusta el tamaño mínimo del botón
         ),
-        child: Text(
+        child: const Text(
           "GO",
           style: TextStyle(
             color: Colors.white,
@@ -94,11 +94,11 @@ class StartPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 20.0),
+              margin: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Center(
                 child: Text(
                   body,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color.fromARGB(247, 0, 51, 122),
                   ),
                   textAlign: TextAlign.center,
@@ -112,7 +112,7 @@ class StartPage extends StatelessWidget {
         imagePath,
         height: 100.0,
       ),
-      decoration: PageDecoration(
+      decoration: const PageDecoration(
         titleTextStyle: TextStyle(
           color: Color.fromARGB(247, 0, 51, 122),
           fontWeight: FontWeight.bold,

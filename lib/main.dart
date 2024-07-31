@@ -11,7 +11,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -21,11 +21,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StartPage(),
+      home: const StartPage(),
       onUnknownRoute: (settings) {
         // Manejo de rutas desconocidas
         return MaterialPageRoute(
-          builder: (context) => HomePage(),
+          builder: (context) => const HomePage(),
         );
       },
       builder: (context, child) {
@@ -38,13 +38,13 @@ class MyApp extends StatelessWidget {
 class NotificationsProvider extends StatefulWidget {
   final Widget child;
 
-  const NotificationsProvider({required this.child});
+  const NotificationsProvider({super.key, required this.child});
 
   @override
-  _NotificationsProviderState createState() => _NotificationsProviderState();
+  NotificationsProviderState createState() => NotificationsProviderState();
 }
 
-class _NotificationsProviderState extends State<NotificationsProvider> {
+class NotificationsProviderState extends State<NotificationsProvider> {
   late NotificationsManager notificationsManager;
 
   @override

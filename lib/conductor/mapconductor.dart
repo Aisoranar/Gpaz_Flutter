@@ -7,14 +7,17 @@ import 'package:location/location.dart';
 import 'package:unipaz/conductor/profileconductor.dart';
 
 class MapConductor extends StatefulWidget {
+  const MapConductor({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _MapConductorState createState() => _MapConductorState();
 }
 
 class _MapConductorState extends State<MapConductor> {
   late GoogleMapController _mapController;
   final Set<Marker> _markers = {};
-  LatLng _currentPosition = LatLng(0, 0); // Inicialización predeterminada
+  LatLng _currentPosition = const LatLng(0, 0); // Inicialización predeterminada
   final Location _location = Location();
   late String _driverPlate;
   bool _isTracking = false;
@@ -42,9 +45,9 @@ class _MapConductorState extends State<MapConductor> {
   }
 
   void _getCurrentLocation() async {
-    final LocationData _locationData = await _location.getLocation();
+    final LocationData locationData = await _location.getLocation();
     setState(() {
-      _currentPosition = LatLng(_locationData.latitude!, _locationData.longitude!);
+      _currentPosition = LatLng(locationData.latitude!, locationData.longitude!);
       _addOrUpdateMarker(_currentPosition, _driverPlate);
       _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 12)); // Menos zoom inicial
     });
@@ -56,29 +59,27 @@ class _MapConductorState extends State<MapConductor> {
         if (snapshot.docs.isNotEmpty) {
           final newMarkers = <Marker>{};
           for (var doc in snapshot.docs) {
-            final data = doc.data() as Map<String, dynamic>; // Conversión explícita
-            if (data != null) {
-              final LatLng position = LatLng(data['latitude'], data['longitude']);
-              final String plate = data['plate'] ?? 'Placa no disponible';
-              final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
-              newMarkers.add(
-                Marker(
-                  markerId: MarkerId(doc.id),
-                  position: position,
-                  infoWindow: InfoWindow(
-                    title: 'Conductor $plate',
-                    snippet: message, // Mostrar el mensaje de la notificación aquí
-                  ),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+            final data = doc.data(); // Conversión explícita
+            final LatLng position = LatLng(data['latitude'], data['longitude']);
+            final String plate = data['plate'] ?? 'Placa no disponible';
+            final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
+            newMarkers.add(
+              Marker(
+                markerId: MarkerId(doc.id),
+                position: position,
+                infoWindow: InfoWindow(
+                  title: 'Conductor $plate',
+                  snippet: message, // Mostrar el mensaje de la notificación aquí
                 ),
-              );
-            }
-          }
+                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+              ),
+            );
+                    }
           setState(() {
             _markers.clear();
             _markers.addAll(newMarkers);
             // Mover el mapa al nuevo marcador con menos zoom
-            if (_mapController != null && _markers.isNotEmpty) {
+            if (_markers.isNotEmpty) {
               LatLngBounds bounds = LatLngBounds(
                 southwest: LatLng(
                   _markers.map((m) => m.position.latitude).reduce((a, b) => a < b ? a : b),
@@ -101,7 +102,7 @@ class _MapConductorState extends State<MapConductor> {
 
   void _addOrUpdateMarker(LatLng position, String plate) {
     final marker = Marker(
-      markerId: MarkerId('current_location'),
+      markerId: const MarkerId('current_location'),
       position: position,
       infoWindow: InfoWindow(
         title: 'Conductor $plate',
@@ -112,10 +113,8 @@ class _MapConductorState extends State<MapConductor> {
     setState(() {
       _markers.add(marker);
       // Mover el mapa al nuevo marcador con menos zoom
-      if (_mapController != null) {
-        _mapController.animateCamera(CameraUpdate.newLatLng(position));
-      }
-    });
+      _mapController.animateCamera(CameraUpdate.newLatLng(position));
+        });
   }
 
   void _toggleTracking() async {
@@ -183,24 +182,24 @@ class _MapConductorState extends State<MapConductor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Mapa del Conductor',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 0, 51, 122),
+        backgroundColor: const Color.fromARGB(255, 0, 51, 122),
         actions: [
           IconButton(
-            icon: Icon(Icons.person, color: Colors.white),
+            icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfileConductor()),
+                MaterialPageRoute(builder: (context) => const ProfileConductor()),
               );
             },
           ),
         ],
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -231,14 +230,14 @@ class _MapConductorState extends State<MapConductor> {
               ),
               label: Text(
                 _isTracking ? 'Apagar Ubicación' : 'Activar Ubicación',
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 0, 51, 122),
+                backgroundColor: const Color.fromARGB(255, 0, 51, 122),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               ),
             ),
           ),
@@ -247,16 +246,16 @@ class _MapConductorState extends State<MapConductor> {
             left: 20,
             child: ElevatedButton(
               onPressed: _showNotificationDialog,
-              child: Text(
-                'Activar Notificación',
-                style: TextStyle(color: Colors.white),
-              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 0, 51, 122),
+                backgroundColor: const Color.fromARGB(255, 0, 51, 122),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              ),
+              child: const Text(
+                'Activar Notificación',
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ),
@@ -270,7 +269,7 @@ class _MapConductorState extends State<MapConductor> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Enviar Notificación'),
+          title: const Text('Enviar Notificación'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -279,35 +278,35 @@ class _MapConductorState extends State<MapConductor> {
                   _sendNotification('Disponible');
                   Navigator.of(context).pop();
                 },
-                child: Text('Disponible'),
+                child: const Text('Disponible'),
               ),
               ElevatedButton(
                 onPressed: () {
                   _sendNotification('No disponible');
                   Navigator.of(context).pop();
                 },
-                child: Text('No disponible'),
+                child: const Text('No disponible'),
               ),
               ElevatedButton(
                 onPressed: () {
                   _sendNotification('Asientos no disponibles');
                   Navigator.of(context).pop();
                 },
-                child: Text('Asientos no disponibles'),
+                child: const Text('Asientos no disponibles'),
               ),
               ElevatedButton(
                 onPressed: () {
                   _sendNotification('Sin cupos');
                   Navigator.of(context).pop();
                 },
-                child: Text('Sin cupos'),
+                child: const Text('Sin cupos'),
               ),
               ElevatedButton(
                 onPressed: () {
                   _sendNotification('Tengo problemas');
                   Navigator.of(context).pop();
                 },
-                child: Text('Tengo problemas'),
+                child: const Text('Tengo problemas'),
               ),
             ],
           ),

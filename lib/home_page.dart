@@ -6,6 +6,8 @@ import 'package:unipaz/tabs/third_tab.dart';
 import 'package:unipaz/tabs/fourth_tab.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -23,7 +25,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Tab(
       icon: Icon(
         icon,
-        color: Color.fromARGB(247, 0, 51, 122),
+        color: const Color.fromARGB(247, 0, 51, 122),
       ),
       text: label,
     );
@@ -33,9 +35,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.0), // Ajusta la altura según sea necesario
+        preferredSize: const Size.fromHeight(60.0), // Ajusta la altura según sea necesario
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(30.0),
@@ -54,14 +56,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             backgroundColor: Colors.transparent,
             elevation: 0, // Elimina la sombra predeterminada del AppBar
             leading: IconButton(
-              icon: Icon(Icons.directions_bus, color: Color.fromARGB(247, 0, 51, 122)),
+              icon: const Icon(Icons.directions_bus, color: Color.fromARGB(247, 0, 51, 122)),
               onPressed: () {},
             ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(child: Container()), // Expande el espacio a la izquierda del título
-                Text(
+                const Text(
                   'UNIPAZ - GPAZ',
                   style: TextStyle(
                     color: Colors.black,
@@ -81,7 +83,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
+        children: const [
           FirstTab(),
           ThirdTab(),
           SecondTab(),
@@ -89,7 +91,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ],
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(30),
@@ -105,8 +107,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         child: TabBar(
           controller: _tabController,
-          indicatorColor: Color.fromARGB(247, 0, 51, 122),
-          labelColor: Color.fromARGB(247, 0, 51, 122),
+          indicatorColor: const Color.fromARGB(247, 0, 51, 122),
+          labelColor: const Color.fromARGB(247, 0, 51, 122),
           unselectedLabelColor: Colors.grey,
           tabs: [
             _buildTab(Icons.home, 'Inicio'),
@@ -121,12 +123,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildPopupMenuButton() {
     return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
+      icon: const Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
       onSelected: (String result) {
         if (result == 'login') {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
+            MaterialPageRoute(builder: (context) => const LoginPage()),
           );
         }
       },
@@ -136,7 +138,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'SOY CONDUCTOR',
                 style: TextStyle(
                   color: Color.fromARGB(247, 0, 51, 122), // Azul oscuro
@@ -145,7 +147,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.close, color: Color.fromARGB(247, 0, 51, 122)), // Azul oscuro
+                icon: const Icon(Icons.close, color: Color.fromARGB(247, 0, 51, 122)), // Azul oscuro
                 onPressed: () {
                   Navigator.pop(context); // Cierra el menú cuando se presiona la "X"
                 },

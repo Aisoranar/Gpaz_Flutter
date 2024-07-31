@@ -10,7 +10,7 @@ class MyButton extends StatelessWidget {
   final VoidCallback onTap;
   final Color buttonColor;
 
-  MyButton({required this.onTap, required this.buttonColor});
+  const MyButton({super.key, required this.onTap, required this.buttonColor});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class MyButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
       ),
-      child: Text(
+      child: const Text(
         'Iniciar sesión',
         style: TextStyle(color: Colors.white),
       ),
@@ -34,7 +34,7 @@ class MyTextField extends StatelessWidget {
   final Icon prefixIcon;
   final Color iconColor;
 
-  MyTextField({
+  const MyTextField({super.key, 
     required this.controller,
     required this.hintText,
     required this.obscureText,
@@ -99,28 +99,28 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _updateDriverLocation() async {
     Location location = Location();
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
 
     try {
-      _serviceEnabled = await location.serviceEnabled();
-      if (!_serviceEnabled) {
-        _serviceEnabled = await location.requestService();
-        if (!_serviceEnabled) {
+      serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) {
           throw Exception('El servicio de ubicación está desactivado.');
         }
       }
 
-      _permissionGranted = await location.hasPermission();
-      if (_permissionGranted == PermissionStatus.denied) {
-        _permissionGranted = await location.requestPermission();
-        if (_permissionGranted != PermissionStatus.granted) {
+      permissionGranted = await location.hasPermission();
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
+        if (permissionGranted != PermissionStatus.granted) {
           throw Exception('Permiso de ubicación denegado.');
         }
       }
 
-      _locationData = await location.getLocation();
+      locationData = await location.getLocation();
 
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -128,8 +128,8 @@ class _LoginPageState extends State<LoginPage> {
         String userName = userDoc['name'] ?? 'Conductor';
 
         await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).set({
-          'latitude': _locationData.latitude,
-          'longitude': _locationData.longitude,
+          'latitude': locationData.latitude,
+          'longitude': locationData.longitude,
           'timestamp': FieldValue.serverTimestamp(),
           'name': 'Conductor $userName', // Usando el nombre del usuario desde Firestore
         });
@@ -139,12 +139,12 @@ class _LoginPageState extends State<LoginPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('No se pudo actualizar la ubicación.'),
+          title: const Text('Error'),
+          content: const Text('No se pudo actualizar la ubicación.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -171,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MapConductor()),
+        MaterialPageRoute(builder: (context) => const MapConductor()),
       );
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
@@ -190,12 +190,12 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Error'),
+        title: const Text('Error'),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -210,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -253,16 +253,16 @@ class _LoginPageState extends State<LoginPage> {
                   controller: emailController,
                   hintText: 'Correo electrónico',
                   obscureText: false,
-                  prefixIcon: Icon(Icons.email),
-                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                  prefixIcon: const Icon(Icons.email),
+                  iconColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
                 const SizedBox(height: 10),
                 MyTextField(
                   controller: passwordController,
                   hintText: 'Contraseña',
                   obscureText: true,
-                  prefixIcon: Icon(Icons.lock),
-                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                  prefixIcon: const Icon(Icons.lock),
+                  iconColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
                 const SizedBox(height: 25),
                 MyButton(
@@ -273,10 +273,10 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => RegisterPage()),
+                      MaterialPageRoute(builder: (context) => const RegisterPage()),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     '¿No tienes una cuenta? Regístrate',
                     style: TextStyle(
                       color: Colors.white,

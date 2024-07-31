@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'tyc.dart'; // Asegúrate de que la ruta de importación sea correcta
 
 class FourthTab extends StatelessWidget {
+  const FourthTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: [
           Container(
-            padding: EdgeInsets.symmetric(vertical: 24.0),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            decoration: const BoxDecoration(
               color: Color.fromARGB(247, 0, 51, 122),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(30.0),
                 bottomRight: Radius.circular(30.0),
               ),
             ),
-            child: Center(
+            child: const Center(
               child: Text(
                 'EQUIPO GPAZ',
                 style: TextStyle(
@@ -28,7 +30,7 @@ class FourthTab extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildTeamMember(
             name: 'Aisor Anaya',
             role: 'Desarrollador FullStack',
@@ -74,11 +76,11 @@ class FourthTab extends StatelessWidget {
             role: 'Documentador',
             icon: Icons.book,
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildAgradecimientos(),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildTermsAndConditionsLink(context),
-          SizedBox(height: 20), // Espacio adicional para el final de la lista
+          const SizedBox(height: 20), // Espacio adicional para el final de la lista
         ],
       ),
     );
@@ -96,8 +98,8 @@ class FourthTab extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.only(bottom: 16.0),
-      padding: EdgeInsets.all(12.0),
+      margin: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
@@ -116,22 +118,22 @@ class FourthTab extends StatelessWidget {
             color: iconColor,
             size: 30.0,
           ),
-          SizedBox(width: 12.0),
+          const SizedBox(width: 12.0),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
-              SizedBox(height: 4.0),
+              const SizedBox(height: 4.0),
               Text(
                 role,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black54,
                 ),
@@ -145,7 +147,7 @@ class FourthTab extends StatelessWidget {
 
   Widget _buildAgradecimientos() {
     return Container(
-      padding: EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
@@ -157,7 +159,7 @@ class FourthTab extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -187,10 +189,10 @@ class FourthTab extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => TermsAndConditionsTab()),
+            MaterialPageRoute(builder: (context) => const TermsAndConditionsTab()),
           );
         },
-        child: Text(
+        child: const Text(
           'Términos y Condiciones',
           style: TextStyle(
             color: Color.fromARGB(247, 0, 51, 122),

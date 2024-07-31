@@ -12,7 +12,7 @@ class MyButton extends StatelessWidget {
   final Color buttonColor;
   final String buttonText;
 
-  MyButton({required this.onTap, required this.buttonColor, required this.buttonText});
+  const MyButton({super.key, required this.onTap, required this.buttonColor, required this.buttonText});
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +23,11 @@ class MyButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
-        padding: EdgeInsets.symmetric(vertical: 15.0),
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
       ),
       child: Text(
         buttonText,
-        style: TextStyle(color: Colors.white, fontSize: 16),
+        style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
     );
   }
@@ -41,7 +41,7 @@ class MyTextField extends StatelessWidget {
   final Color iconColor;
   final TextInputType keyboardType;
 
-  MyTextField({
+  const MyTextField({super.key, 
     required this.controller,
     required this.hintText,
     required this.obscureText,
@@ -67,7 +67,7 @@ class MyTextField extends StatelessWidget {
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
       ),
     );
   }
@@ -102,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Recortar Imagen',
-            toolbarColor: Color.fromARGB(247, 0, 51, 122),
+            toolbarColor: const Color.fromARGB(247, 0, 51, 122),
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: false,
@@ -141,12 +141,12 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imagen de perfil actualizada exitosamente')),
+        const SnackBar(content: Text('Imagen de perfil actualizada exitosamente')),
       );
     } catch (e) {
       print('Error al subir la imagen: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al subir la imagen')),
+        const SnackBar(content: Text('Error al subir la imagen')),
       );
     }
   }
@@ -181,7 +181,7 @@ class _RegisterPageState extends State<RegisterPage> {
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
@@ -199,7 +199,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void showError(String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(title: Text('Error'), content: Text(message)),
+      builder: (context) => AlertDialog(title: const Text('Error'), content: Text(message)),
     );
   }
 
@@ -211,12 +211,12 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color.fromARGB(247, 0, 51, 122)),
+          icon: const Icon(Icons.arrow_back, color: Color.fromARGB(247, 0, 51, 122)),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text(
+        title: const Text(
           'Registro',
           style: TextStyle(color: Color.fromARGB(247, 0, 51, 122)),
         ),
@@ -265,13 +265,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Color.fromARGB(247, 0, 51, 122),
+                        color: const Color.fromARGB(247, 0, 51, 122),
                         width: 4,
                       ),
                       color: Colors.white,
                     ),
                     child: _imageFile == null
-                        ? Center(
+                        ? const Center(
                             child: Icon(
                               Icons.camera_alt,
                               size: 60,
@@ -293,40 +293,40 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: emailController,
                   hintText: 'Correo electrónico',
                   obscureText: false,
-                  prefixIcon: Icon(Icons.email),
-                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                  prefixIcon: const Icon(Icons.email),
+                  iconColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
                 const SizedBox(height: 15),
                 MyTextField(
                   controller: passwordController,
                   hintText: 'Contraseña',
                   obscureText: true,
-                  prefixIcon: Icon(Icons.lock),
-                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                  prefixIcon: const Icon(Icons.lock),
+                  iconColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
                 const SizedBox(height: 15),
                 MyTextField(
                   controller: nameController,
                   hintText: 'Nombre del Conductor',
                   obscureText: false,
-                  prefixIcon: Icon(Icons.person),
-                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                  prefixIcon: const Icon(Icons.person),
+                  iconColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
                 const SizedBox(height: 15),
                 MyTextField(
                   controller: plateController,
                   hintText: 'Placa del Vehículo',
                   obscureText: false,
-                  prefixIcon: Icon(Icons.directions_car),
-                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                  prefixIcon: const Icon(Icons.directions_car),
+                  iconColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
                 const SizedBox(height: 15),
                 MyTextField(
                   controller: phoneController,
                   hintText: 'Número de Teléfono',
                   obscureText: false,
-                  prefixIcon: Icon(Icons.phone),
-                  iconColor: Color.fromARGB(247, 0, 51, 122),
+                  prefixIcon: const Icon(Icons.phone),
+                  iconColor: const Color.fromARGB(247, 0, 51, 122),
                   keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 30),
