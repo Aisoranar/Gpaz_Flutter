@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -190,7 +192,7 @@ class _SecondTabState extends State<SecondTab> {
         markerId: MarkerId(doc.id),
         position: position,
         infoWindow: InfoWindow(
-          title: 'Conductor $plate',
+          title: 'Cotsem [$plate]',
           snippet: message,
         ),
         icon: _user2Icon,
@@ -319,42 +321,97 @@ class _SecondTabState extends State<SecondTab> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+ @override
+Widget build(BuildContext context) {
+  return WillPopScope(
+    onWillPop: () async {
+      // Show a dialog or any other action to prevent changing the tab
+      return false; // Prevent the pop action
+    },
+    child: Scaffold(
       body: Stack(
         children: [
-          GoogleMap(
-            onMapCreated: (controller) {
-              _mapController = controller;
-              _saveLastMapPosition(_initialPosition);
-            },
-            initialCameraPosition: CameraPosition(
-              target: _userLocation ?? _initialPosition,
-              zoom: 14,
-            ),
-            markers: _markers.union(_userMarkers),
-            polylines: _polylines,
-            onCameraMove: (cameraPosition) {
-              _saveLastMapPosition(cameraPosition.target);
-            },
-          ),
+          _iconsLoaded
+              ? GoogleMap(
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController = controller;
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: _initialPosition,
+                    zoom: 14,
+                  ),
+                  markers: _markers.union(_userMarkers),
+                  polylines: _polylines,
+                  onCameraMove: (position) {
+                    _saveLastMapPosition(position.target);
+                  },
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  gestureRecognizers: Set()
+                    ..add(
+                      Factory<PanGestureRecognizer>(
+                        () => PanGestureRecognizer(),
+                      ),
+                    ),
+                )
+              : Center(child: CircularProgressIndicator()),
           Positioned(
-            top: 20,
-            left: 15,
+            bottom: 520,
+            left: 10,
+            right: 70,
             child: Container(
               padding: EdgeInsets.all(10),
-              color: Colors.white,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 2),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Distancia a la siguiente parada: $_distance'),
-                  Text('Tiempo estimado: $_duration'),
-                  Text('Conductor Cercano: $_nextStop'),
+                  Text(
+                    'Distancia a la siguiente parada: $_distance',
+                    style: TextStyle(
+                      backgroundColor: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Tiempo estimado: $_duration',
+                    style: TextStyle(
+                      backgroundColor: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Conductor Cercano: $_nextStop',
+                    style: TextStyle(
+                      backgroundColor: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

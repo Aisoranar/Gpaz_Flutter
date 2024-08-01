@@ -20,6 +20,7 @@ class _MapConductorState extends State<MapConductor> {
   bool _isTracking = false;
 
   late StreamSubscription<LocationData> _locationSubscription;
+  late BitmapDescriptor _customIcon; // Ícono personalizado
 
   @override
   void initState() {
@@ -27,6 +28,14 @@ class _MapConductorState extends State<MapConductor> {
     _fetchDriverPlate();
     _getCurrentLocation();
     _listenToDriverLocation();
+    _loadCustomIcon(); // Cargar el ícono personalizado
+  }
+
+  Future<void> _loadCustomIcon() async {
+    _customIcon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(20, 20)), // Tamaño ajustado
+      'Assets/icon/cotsem.png',
+    );
   }
 
   Future<void> _fetchDriverPlate() async {
@@ -45,8 +54,8 @@ class _MapConductorState extends State<MapConductor> {
     final LocationData _locationData = await _location.getLocation();
     setState(() {
       _currentPosition = LatLng(_locationData.latitude!, _locationData.longitude!);
-      _addOrUpdateMarker(_currentPosition, _driverPlate);
-      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 12)); // Menos zoom inicial
+      _addOrUpdateMarker(_currentPosition, _driverPlate, _locationData.heading ?? 0); // Pasar la dirección de movimiento
+      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14)); // Zoom inicial ajustado
     });
   }
 
@@ -61,15 +70,18 @@ class _MapConductorState extends State<MapConductor> {
               final LatLng position = LatLng(data['latitude'], data['longitude']);
               final String plate = data['plate'] ?? 'Placa no disponible';
               final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
+              final double heading = data['heading'] ?? 0; // Obtener la dirección de movimiento
+
               newMarkers.add(
                 Marker(
                   markerId: MarkerId(doc.id),
                   position: position,
                   infoWindow: InfoWindow(
-                    title: 'Conductor $plate',
+                    title: 'Placa $plate',
                     snippet: message, // Mostrar el mensaje de la notificación aquí
                   ),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                  icon: _customIcon, // Usar el ícono personalizado
+                  rotation: heading, // Rotar el ícono
                 ),
               );
             }
@@ -89,7 +101,7 @@ class _MapConductorState extends State<MapConductor> {
                   _markers.map((m) => m.position.longitude).reduce((a, b) => a > b ? a : b),
                 ),
               );
-              _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50)); // Menos zoom al ajustar los límites
+              _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50)); // Ajuste de zoom para ver todos los marcadores
             }
           });
         }
@@ -99,15 +111,16 @@ class _MapConductorState extends State<MapConductor> {
     });
   }
 
-  void _addOrUpdateMarker(LatLng position, String plate) {
+  void _addOrUpdateMarker(LatLng position, String plate, double heading) {
     final marker = Marker(
       markerId: MarkerId('current_location'),
       position: position,
       infoWindow: InfoWindow(
-        title: 'Conductor $plate',
+        title: 'Placa $plate',
         snippet: 'Ubicación actual',
       ),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+      icon: _customIcon, // Usar el ícono personalizado
+      rotation: heading, // Rotar el ícono según la dirección de movimiento
     );
     setState(() {
       _markers.add(marker);
@@ -133,9 +146,10 @@ class _MapConductorState extends State<MapConductor> {
             'latitude': newLocation.latitude,
             'longitude': newLocation.longitude,
             'plate': _driverPlate,
+            'heading': newLocation.heading, // Guardar la dirección de movimiento
             // No se actualiza el mensaje aquí
           }, SetOptions(merge: true)); // Merged update to avoid overwriting the message
-          _addOrUpdateMarker(newPosition, _driverPlate);
+          _addOrUpdateMarker(newPosition, _driverPlate, newLocation.heading ?? 0);
         });
       }
       setState(() {
@@ -211,13 +225,13 @@ class _MapConductorState extends State<MapConductor> {
           GoogleMap(
             initialCameraPosition: CameraPosition(
               target: _currentPosition,
-              zoom: 12, // Menos zoom inicial
+              zoom: 14, // Menos zoom inicial
             ),
             markers: _markers,
             onMapCreated: (GoogleMapController controller) {
               _mapController = controller;
               // Mover el mapa al inicio de la ubicación actual con menos zoom
-              _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 12));
+              _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14));
             },
           ),
           Positioned(
@@ -268,7 +282,7 @@ class _MapConductorState extends State<MapConductor> {
   void _showNotificationDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: Text('Enviar Notificación'),
           content: Column(
@@ -276,36 +290,36 @@ class _MapConductorState extends State<MapConductor> {
             children: [
               ElevatedButton(
                 onPressed: () {
+                  Navigator.pop(context);
                   _sendNotification('Disponible');
-                  Navigator.of(context).pop();
                 },
                 child: Text('Disponible'),
               ),
               ElevatedButton(
                 onPressed: () {
+                  Navigator.pop(context);
                   _sendNotification('No disponible');
-                  Navigator.of(context).pop();
                 },
                 child: Text('No disponible'),
               ),
               ElevatedButton(
                 onPressed: () {
+                  Navigator.pop(context);
                   _sendNotification('Asientos no disponibles');
-                  Navigator.of(context).pop();
                 },
                 child: Text('Asientos no disponibles'),
               ),
               ElevatedButton(
                 onPressed: () {
+                  Navigator.pop(context);
                   _sendNotification('Sin cupos');
-                  Navigator.of(context).pop();
                 },
                 child: Text('Sin cupos'),
               ),
               ElevatedButton(
                 onPressed: () {
+                  Navigator.pop(context);
                   _sendNotification('Tengo problemas');
-                  Navigator.of(context).pop();
                 },
                 child: Text('Tengo problemas'),
               ),

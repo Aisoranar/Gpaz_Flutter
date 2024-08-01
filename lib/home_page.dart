@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unipaz/pages/login_page.dart';
+import 'package:unipaz/pages/start_page.dart';
 import 'package:unipaz/tabs/firts_tab.dart';
 import 'package:unipaz/tabs/second_tab.dart';
 import 'package:unipaz/tabs/third_tab.dart';
@@ -54,7 +55,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             backgroundColor: Colors.transparent,
             elevation: 0, // Elimina la sombra predeterminada del AppBar
             leading: IconButton(
-              icon: Icon(Icons.directions_bus, color: Color.fromARGB(247, 0, 51, 122)),
+              icon: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle, // Forma rectangular
+                  image: DecorationImage(
+                    image: AssetImage('Assets/icon/unipaz.png'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
               onPressed: () {},
             ),
             title: Row(
@@ -111,8 +122,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           tabs: [
             _buildTab(Icons.home, 'Inicio'),
             _buildTab(Icons.location_on, 'Paradas'),
-            _buildTab(Icons.map, 'Ruta'),
-            _buildTab(Icons.group, 'Acerca de'),
+            _buildTab(Icons.map, 'Mapa'),  // Cambié el icono aquí
+            _buildTab(Icons.more_vert, 'Más'),
           ],
         ),
       ),
@@ -120,46 +131,63 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildPopupMenuButton() {
-    return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
-      onSelected: (String result) {
-        if (result == 'login') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
-          );
-        }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-          value: 'login',
+    return PopupMenuButton<int>(
+      icon: Icon(
+        Icons.menu,
+        color: Color.fromARGB(247, 0, 51, 122),
+      ),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 1,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Icon(
+                Icons.info,
+                color: Color.fromARGB(247, 0, 51, 122),
+              ),
+              SizedBox(width: 8),
               Text(
-                'SOY CONDUCTOR',
+                "¿Cómo Funciona?",
                 style: TextStyle(
-                  color: Color.fromARGB(247, 0, 51, 122), // Azul oscuro
+                  color: Color.fromARGB(247, 0, 51, 122),
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.close, color: Color.fromARGB(247, 0, 51, 122)), // Azul oscuro
-                onPressed: () {
-                  Navigator.pop(context); // Cierra el menú cuando se presiona la "X"
-                },
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 2,
+          child: Row(
+            children: [
+              Icon(
+                Icons.close,
+                color: Color.fromARGB(247, 0, 51, 122),
+              ),
+              SizedBox(width: 8),
+              Text(
+                "Cerrar",
+                style: TextStyle(
+                  color: Color.fromARGB(247, 0, 51, 122),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
         ),
       ],
+      onSelected: (value) {
+        if (value == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StartPage(fromHomePage: true),
+            ),
+          );
+        } else if (value == 2) {
+          Navigator.pop(context);  // Cierra el cuadro de diálogo
+        }
+      },
     );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }

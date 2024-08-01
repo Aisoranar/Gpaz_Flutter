@@ -67,6 +67,7 @@ dependencies:
   image_cropper: ^7.1.0
   dotted_border: ^2.1.0
   cached_network_image: ^3.3.1
+  animated_text_kit: ^4.2.2
   
 
 
@@ -125,6 +126,8 @@ flutter:
     - Assets/images/paradas/muypronto.jpg
     - Assets/images/support.png
     - Assets/images/support.jpeg
+    - Assets/icon/logounipazblanco.png
+    
   #   - images/a_dot_ham.jpeg
 
   
