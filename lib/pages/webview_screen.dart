@@ -11,7 +11,7 @@ class WebViewScreen extends StatelessWidget {
       future: _canAccessSuggestions(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError || !snapshot.data!) {
           return Scaffold(
@@ -20,8 +20,8 @@ class WebViewScreen extends StatelessWidget {
                 'Enviar sugerencias',
                 style: TextStyle(color: Colors.white), // Texto blanco en la AppBar
               ),
-              backgroundColor: Color.fromARGB(247, 0, 51, 122), // Color de fondo de la AppBar
-              iconTheme: IconThemeData(color: Colors.white), // Color blanco para los íconos de la AppBar
+              backgroundColor: const Color.fromARGB(247, 0, 51, 122), // Color de fondo de la AppBar
+              iconTheme: const IconThemeData(color: Colors.white), // Color blanco para los íconos de la AppBar
             ),
             body: Center(
               child: Padding(
@@ -31,7 +31,7 @@ class WebViewScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Título grande
-                    Text(
+                    const Text(
                       '¡Gracias por tus sugerencias!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -40,9 +40,9 @@ class WebViewScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     // Texto adicional más pequeño
-                    Text(
+                    const Text(
                       'El equipo de GPaz las está tomando en cuenta y trabajará para mejorar la aplicación. '
                       'Debes esperar 5 minutos para enviar otra sugerencia. ¡Tu opinión es muy valiosa para nosotros!',
                       textAlign: TextAlign.center,
@@ -51,7 +51,7 @@ class WebViewScreen extends StatelessWidget {
                         fontSize: 16, // Tamaño de fuente más pequeño
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Image.asset(
                       'Assets/images/support.png',
                       height: 150,
@@ -61,7 +61,7 @@ class WebViewScreen extends StatelessWidget {
                 ),
               ),
             ),
-            backgroundColor: Color.fromARGB(247, 0, 51, 122), // Color de fondo de la pantalla
+            backgroundColor: const Color.fromARGB(247, 0, 51, 122), // Color de fondo de la pantalla
           );
         }
 
@@ -92,11 +92,11 @@ class WebViewScreen extends StatelessWidget {
               'Enviar sugerencias',
               style: TextStyle(color: Colors.white), // Texto blanco en la AppBar
             ),
-            backgroundColor: Color.fromARGB(247, 0, 51, 122), // Color de fondo de la AppBar
-            iconTheme: IconThemeData(color: Colors.white), // Color blanco para los íconos de la AppBar
+            backgroundColor: const Color.fromARGB(247, 0, 51, 122), // Color de fondo de la AppBar
+            iconTheme: const IconThemeData(color: Colors.white), // Color blanco para los íconos de la AppBar
           ),
           body: WebViewWidget(controller: webViewController),
-          backgroundColor: Color.fromARGB(247, 0, 51, 122), // Color de fondo de la pantalla
+          backgroundColor: const Color.fromARGB(247, 0, 51, 122), // Color de fondo de la pantalla
         );
       },
     );

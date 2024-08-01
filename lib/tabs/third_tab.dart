@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:unipaz/tabs/second_tab.dart';
 
 class ThirdTab extends StatefulWidget {
+  const ThirdTab({super.key});
+
   @override
   _ThirdTabState createState() => _ThirdTabState();
 }
@@ -84,14 +85,14 @@ class _ThirdTabState extends State<ThirdTab> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 24.0),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                decoration: const BoxDecoration(
                   color: Color.fromARGB(247, 0, 51, 122),
                   borderRadius: BorderRadius.vertical(
                     bottom: Radius.circular(30.0),
                   ),
                 ),
-                child: Center(
+                child: const Center(
                   child: Text(
                     'RUTAS',
                     style: TextStyle(
@@ -104,7 +105,7 @@ class _ThirdTabState extends State<ThirdTab> {
                 ),
               ),
             ),
-            SizedBox(height: 20.0), // Espacio entre el encabezado y la lista
+            const SizedBox(height: 20.0), // Espacio entre el encabezado y la lista
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Column(
@@ -147,7 +148,7 @@ class _ThirdTabState extends State<ThirdTab> {
         children: [
           Icon(
             iconData,
-            color: Color.fromARGB(247, 0, 51, 122),
+            color: const Color.fromARGB(247, 0, 51, 122),
             size: 32.0,
           ),
           const SizedBox(width: 12.0),
@@ -205,7 +206,7 @@ class RouteDescriptionScreen extends StatelessWidget {
   final String imagePath;
   final String markerId;
 
-  RouteDescriptionScreen({
+  const RouteDescriptionScreen({super.key, 
     required this.title,
     required this.description,
     required this.imagePath,

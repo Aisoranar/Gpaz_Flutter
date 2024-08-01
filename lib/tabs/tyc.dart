@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class TermsAndConditionsTab extends StatelessWidget {
+  const TermsAndConditionsTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(vertical: 20.0),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            decoration: const BoxDecoration(
               color: Color.fromARGB(247, 0, 51, 122),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20.0),
@@ -18,12 +20,12 @@ class TermsAndConditionsTab extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
                     Navigator.pop(context);
                   },
                 ),
-                Expanded(
+                const Expanded(
                   child: Center(
                     child: Text(
                       'TÉRMINOS Y CONDICIONES',
@@ -32,14 +34,14 @@ class TermsAndConditionsTab extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 48), // Espacio para centrar el título
+                const SizedBox(width: 48), // Espacio para centrar el título
               ],
             ),
           ),
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -109,7 +111,7 @@ class TermsAndConditionsTab extends StatelessWidget {
       padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
       child: Text(
         title,
-        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Color.fromARGB(247, 0, 51, 122)),
+        style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Color.fromARGB(247, 0, 51, 122)),
       ),
     );
   }
@@ -119,7 +121,7 @@ class TermsAndConditionsTab extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         content,
-        style: TextStyle(fontSize: 14.0),
+        style: const TextStyle(fontSize: 14.0),
       ),
     );
   }

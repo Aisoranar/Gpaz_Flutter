@@ -3,6 +3,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:unipaz/pages/webview_screen.dart';
 
 class FirstTab extends StatelessWidget {
+  const FirstTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Preguntar por los permisos al cargar la pestaña
@@ -12,13 +14,18 @@ class FirstTab extends StatelessWidget {
       body: Stack(
         children: [
           Container(
-            color: Color.fromARGB(255, 196, 223, 233),
+            color: const Color.fromARGB(255, 196, 223, 233),
             child: Center(
               child: SizedBox.expand(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(0.0),
+<<<<<<< HEAD
                   child: Image(
                     image: AssetImage('Assets/images/bus_imagen1.jpg'),
+=======
+                  child: const Image(
+                    image: AssetImage('Assets/images/bus_imagen.jpg'),
+>>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -29,8 +36,8 @@ class FirstTab extends StatelessWidget {
             top: MediaQuery.of(context).size.height * 0.55, // Ajuste vertical para centrar un poco más arriba
             right: 16, // Ajustado para que esté más alineado
             child: ElevatedButton.icon(
-              icon: Icon(Icons.feedback, color: Colors.white, size: 24), // Tamaño del ícono
-              label: Text(
+              icon: const Icon(Icons.feedback, color: Colors.white, size: 24), // Tamaño del ícono
+              label: const Text(
                 'Enviar sugerencias',
                 style: TextStyle(
                   color: Colors.white,
@@ -39,13 +46,13 @@ class FirstTab extends StatelessWidget {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 38, 52, 140), // Color más sofisticado
+                backgroundColor: const Color.fromARGB(255, 38, 52, 140), // Color más sofisticado
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0), // Bordes más redondeados
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Espaciado
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Espaciado
                 elevation: 8, // Sombra más prominente
-                side: BorderSide(color: Colors.white, width: 2), // Borde del botón
+                side: const BorderSide(color: Colors.white, width: 2), // Borde del botón
               ),
               onPressed: () {
                 _showSuggestionDialog(context);
@@ -66,7 +73,7 @@ class FirstTab extends StatelessWidget {
 
       // Mostrar un SnackBar informando al usuario sobre la necesidad de conceder permisos
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Por favor, concede los permisos de notificación para un mejor funcionamiento de la aplicación.'),
           duration: Duration(seconds: 5),
         ),
@@ -82,16 +89,16 @@ class FirstTab extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0), // Bordes redondeados del diálogo
           ),
-          title: Text(
+          title: const Text(
             'Enviar Sugerencia',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: const Color.fromARGB(247, 0, 51, 122),
+              color: Color.fromARGB(247, 0, 51, 122),
             ),
           ),
-          content: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
+          content: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
             child: Text(
               'Tu opinión es muy valiosa para nosotros. ¿Te gustaría enviar una sugerencia para ayudar a mejorar la beta de GPaz?',
               style: TextStyle(
@@ -101,7 +108,7 @@ class FirstTab extends StatelessWidget {
               ),
             ),
           ),
-          actionsPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           actions: [
             ElevatedButton(
               onPressed: () {
@@ -109,7 +116,7 @@ class FirstTab extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebViewScreen(),
+                    builder: (context) => const WebViewScreen(),
                   ),
                 );
               },
@@ -118,9 +125,9 @@ class FirstTab extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
-              child: Text(
+              child: const Text(
                 'Sí',
                 style: TextStyle(
                   color: Colors.white,
@@ -128,19 +135,19 @@ class FirstTab extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 16), // Espacio entre los botones
+            const SizedBox(width: 16), // Espacio entre los botones
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(247, 122, 0, 0),
+                backgroundColor: const Color.fromARGB(247, 122, 0, 0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
-              child: Text(
+              child: const Text(
                 'No',
                 style: TextStyle(
                   color: Colors.white,

@@ -9,6 +9,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SecondTab extends StatefulWidget {
+  const SecondTab({super.key});
+
   @override
   _SecondTabState createState() => _SecondTabState();
 }
@@ -22,7 +24,7 @@ class _SecondTabState extends State<SecondTab> {
   late BitmapDescriptor _user2Icon;
 
   bool _iconsLoaded = false;
-  Location _location = Location();
+  final Location _location = Location();
   LatLng? _userLocation;
   Set<Marker> _userMarkers = {};
   String _distance = '';
@@ -43,17 +45,17 @@ class _SecondTabState extends State<SecondTab> {
 
   Future<void> _loadCustomIcons() async {
     _user1Icon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),
+      const ImageConfiguration(size: Size(20, 20)),
       'Assets/icon/gpsiconuser.png',
     );
 
     _user2Icon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),
+      const ImageConfiguration(size: Size(20, 20)),
       'Assets/icon/cotsem.png',
     );
 
     _customIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)),
+      const ImageConfiguration(size: Size(20, 20)),
       'Assets/icon/gpsiconparada.png',
     );
     setState(() {
@@ -82,10 +84,10 @@ class _SecondTabState extends State<SecondTab> {
       _userLocation = LatLng(userLocation.latitude!, userLocation.longitude!);
       _userMarkers = {
         Marker(
-          markerId: MarkerId('user_location'),
+          markerId: const MarkerId('user_location'),
           position: _userLocation!,
           icon: _user1Icon,
-          infoWindow: InfoWindow(
+          infoWindow: const InfoWindow(
             title: 'Tu Ubicación',
           ),
         ),
@@ -98,7 +100,7 @@ class _SecondTabState extends State<SecondTab> {
   Future<void> _calculateDistancesAndTimes() async {
     if (_userLocation == null) return;
 
-    final String apiKey = 'AIzaSyAyGNYpr03GhF3hWw7QSLVJtmZE4h21DZg';
+    const String apiKey = 'AIzaSyAyGNYpr03GhF3hWw7QSLVJtmZE4h21DZg';
     Set<Polyline> newPolylines = {};
     String nextStopDistance = '';
     String nextStopDuration = '';
@@ -360,6 +362,7 @@ Widget build(BuildContext context) {
             left: 10,
             right: 70,
             child: Container(
+<<<<<<< HEAD
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -372,6 +375,10 @@ Widget build(BuildContext context) {
                   ),
                 ],
               ),
+=======
+              padding: const EdgeInsets.all(10),
+              color: Colors.white,
+>>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

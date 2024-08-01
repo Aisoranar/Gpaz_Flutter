@@ -8,7 +8,10 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ProfileConductor extends StatefulWidget {
+  const ProfileConductor({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ProfileConductorState createState() => _ProfileConductorState();
 }
 
@@ -74,8 +77,9 @@ class _ProfileConductorState extends State<ProfileConductor> {
     if (status.isGranted) {
       _pickImage();
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso para acceder a la cámara no concedido')),
+        const SnackBar(content: Text('Permiso para acceder a la cámara no concedido')),
       );
     }
   }
@@ -95,7 +99,7 @@ class _ProfileConductorState extends State<ProfileConductor> {
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Recortar Imagen',
-            toolbarColor: Color.fromARGB(247, 0, 51, 122),
+            toolbarColor: const Color.fromARGB(247, 0, 51, 122),
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: false,
@@ -142,7 +146,7 @@ class _ProfileConductorState extends State<ProfileConductor> {
           _userData?['profile_image'] = downloadUrl;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Imagen actualizada exitosamente')),
+          const SnackBar(content: Text('Imagen actualizada exitosamente')),
         );
       } else {
         await userDocRef.set({
@@ -152,13 +156,13 @@ class _ProfileConductorState extends State<ProfileConductor> {
           _userData?['profile_image'] = downloadUrl;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Imagen guardada exitosamente')),
+          const SnackBar(content: Text('Imagen guardada exitosamente')),
         );
       }
     } catch (e) {
       print('Error al subir la imagen: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al subir la imagen')),
+        const SnackBar(content: Text('Error al subir la imagen')),
       );
     }
   }
@@ -166,7 +170,7 @@ class _ProfileConductorState extends State<ProfileConductor> {
   Future<void> _updateUserData() async {
     if (_nameController.text.isEmpty || _plateController.text.isEmpty || _emailController.text.isEmpty || _phoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor, complete todos los campos')),
+        const SnackBar(content: Text('Por favor, complete todos los campos')),
       );
       return;
     }
@@ -186,7 +190,7 @@ class _ProfileConductorState extends State<ProfileConductor> {
         _isEditing = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Datos actualizados exitosamente')),
+        const SnackBar(content: Text('Datos actualizados exitosamente')),
       );
     } catch (e) {
       print('Error al actualizar los datos: $e');
@@ -197,17 +201,17 @@ class _ProfileConductorState extends State<ProfileConductor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Perfil del Conductor', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-        backgroundColor: Color.fromARGB(247, 0, 51, 122),
+        title: const Text('Perfil del Conductor', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        backgroundColor: const Color.fromARGB(247, 0, 51, 122),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _errorMessage.isNotEmpty
-              ? Center(child: Text(_errorMessage, style: TextStyle(color: Colors.red, fontSize: 18)))
+              ? Center(child: Text(_errorMessage, style: const TextStyle(color: Colors.red, fontSize: 18)))
               : Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: ListView(
@@ -221,11 +225,11 @@ class _ProfileConductorState extends State<ProfileConductor> {
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.1),
                                 blurRadius: 10,
-                                offset: Offset(0, 4),
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          padding: EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -234,7 +238,7 @@ class _ProfileConductorState extends State<ProfileConductor> {
                                   ClipOval(
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        border: Border.all(color: Color.fromARGB(247, 0, 51, 122), width: 4),
+                                        border: Border.all(color: const Color.fromARGB(247, 0, 51, 122), width: 4),
                                         shape: BoxShape.circle,
                                       ),
                                       child: CircleAvatar(
@@ -246,7 +250,7 @@ class _ProfileConductorState extends State<ProfileConductor> {
                                                 ? NetworkImage(_userData!['profile_image']) as ImageProvider<Object>?
                                                 : null),
                                         child: _imageFile == null && _userData?['profile_image'] == null
-                                            ? Icon(Icons.person, size: 90, color: Colors.grey)
+                                            ? const Icon(Icons.person, size: 90, color: Colors.grey)
                                             : null,
                                       ),
                                     ),
@@ -262,44 +266,44 @@ class _ProfileConductorState extends State<ProfileConductor> {
                                             color: Colors.blue,
                                             borderRadius: BorderRadius.circular(50),
                                           ),
-                                          padding: EdgeInsets.all(8),
-                                          child: Icon(Icons.edit, color: Colors.white),
+                                          padding: const EdgeInsets.all(8),
+                                          child: const Icon(Icons.edit, color: Colors.white),
                                         ),
                                       ),
                                     ),
                                 ],
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               _buildTextField(_nameController, 'Nombre', Icons.person),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               _buildTextField(_plateController, 'Placa del Vehículo', Icons.directions_car),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               _buildTextField(_emailController, 'Correo Electrónico', Icons.email),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               _buildTextField(_phoneController, 'Número de Teléfono', Icons.phone),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               _isEditing
                                   ? Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         ElevatedButton(
                                           onPressed: _updateUserData,
-                                          child: Text('Guardar Cambios'),
                                           style: ElevatedButton.styleFrom(
-                                            foregroundColor: Colors.white, backgroundColor: Color.fromARGB(247, 0, 51, 122),
+                                            foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(247, 0, 51, 122),
                                           ),
+                                          child: const Text('Guardar Cambios'),
                                         ),
-                                        SizedBox(width: 20),
+                                        const SizedBox(width: 20),
                                         ElevatedButton(
                                           onPressed: () {
                                             setState(() {
                                               _isEditing = false;
                                             });
                                           },
-                                          child: Text('Cancelar'),
                                           style: ElevatedButton.styleFrom(
                                             foregroundColor: Colors.white, backgroundColor: Colors.grey,
                                           ),
+                                          child: const Text('Cancelar'),
                                         ),
                                       ],
                                     )
@@ -309,10 +313,10 @@ class _ProfileConductorState extends State<ProfileConductor> {
                                           _isEditing = true;
                                         });
                                       },
-                                      child: Text('Editar Perfil'),
                                       style: ElevatedButton.styleFrom(
-                                        foregroundColor: Colors.white, backgroundColor: Color.fromARGB(247, 0, 51, 122),
+                                        foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(247, 0, 51, 122),
                                       ),
+                                      child: const Text('Editar Perfil'),
                                     ),
                             ],
                           ),
@@ -330,17 +334,17 @@ class _ProfileConductorState extends State<ProfileConductor> {
       enabled: _isEditing,
       decoration: InputDecoration(
         labelText: labelText,
-        prefixIcon: Icon(icon, color: Color.fromARGB(247, 0, 51, 122)),
+        prefixIcon: Icon(icon, color: const Color.fromARGB(247, 0, 51, 122)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Color.fromARGB(247, 0, 51, 122), width: 2),
+          borderSide: const BorderSide(color: Color.fromARGB(247, 0, 51, 122), width: 2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Color.fromARGB(247, 0, 51, 122), width: 2),
+          borderSide: const BorderSide(color: Color.fromARGB(247, 0, 51, 122), width: 2),
         ),
       ),
-      style: TextStyle(color: Color.fromARGB(247, 0, 51, 122)),
+      style: const TextStyle(color: Color.fromARGB(247, 0, 51, 122)),
     );
   }
 }
