@@ -10,7 +10,6 @@ class MapConductor extends StatefulWidget {
   const MapConductor({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MapConductorState createState() => _MapConductorState();
 }
 
@@ -36,7 +35,7 @@ class _MapConductorState extends State<MapConductor> {
 
   Future<void> _loadCustomIcon() async {
     _customIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(20, 20)), // Tamaño ajustado
+      const ImageConfiguration(size: Size(20, 20)), // Tamaño ajustado
       'Assets/icon/cotsem.png',
     );
   }
@@ -56,15 +55,9 @@ class _MapConductorState extends State<MapConductor> {
   void _getCurrentLocation() async {
     final LocationData locationData = await _location.getLocation();
     setState(() {
-<<<<<<< HEAD
-      _currentPosition = LatLng(_locationData.latitude!, _locationData.longitude!);
-      _addOrUpdateMarker(_currentPosition, _driverPlate, _locationData.heading ?? 0); // Pasar la dirección de movimiento
-      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14)); // Zoom inicial ajustado
-=======
       _currentPosition = LatLng(locationData.latitude!, locationData.longitude!);
-      _addOrUpdateMarker(_currentPosition, _driverPlate);
-      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 12)); // Menos zoom inicial
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
+      _addOrUpdateMarker(_currentPosition, _driverPlate, locationData.heading ?? 0); // Pasar la dirección de movimiento
+      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14)); // Zoom inicial ajustado
     });
   }
 
@@ -74,13 +67,12 @@ class _MapConductorState extends State<MapConductor> {
         if (snapshot.docs.isNotEmpty) {
           final newMarkers = <Marker>{};
           for (var doc in snapshot.docs) {
-<<<<<<< HEAD
             final data = doc.data() as Map<String, dynamic>; // Conversión explícita
             if (data != null) {
               final LatLng position = LatLng(data['latitude'], data['longitude']);
               final String plate = data['plate'] ?? 'Placa no disponible';
               final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
-              final double heading = data['heading'] ?? 0; // Obtener la dirección de movimiento
+              final double heading = data['heading'] ?? 0.0;
 
               newMarkers.add(
                 Marker(
@@ -92,24 +84,10 @@ class _MapConductorState extends State<MapConductor> {
                   ),
                   icon: _customIcon, // Usar el ícono personalizado
                   rotation: heading, // Rotar el ícono
-=======
-            final data = doc.data(); // Conversión explícita
-            final LatLng position = LatLng(data['latitude'], data['longitude']);
-            final String plate = data['plate'] ?? 'Placa no disponible';
-            final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
-            newMarkers.add(
-              Marker(
-                markerId: MarkerId(doc.id),
-                position: position,
-                infoWindow: InfoWindow(
-                  title: 'Conductor $plate',
-                  snippet: message, // Mostrar el mensaje de la notificación aquí
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
                 ),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-              ),
-            );
-                    }
+              );
+            }
+          }
           setState(() {
             _markers.clear();
             _markers.addAll(newMarkers);
@@ -150,7 +128,7 @@ class _MapConductorState extends State<MapConductor> {
       _markers.add(marker);
       // Mover el mapa al nuevo marcador con menos zoom
       _mapController.animateCamera(CameraUpdate.newLatLng(position));
-        });
+    });
   }
 
   void _toggleTracking() async {
@@ -282,17 +260,56 @@ class _MapConductorState extends State<MapConductor> {
             bottom: 80,
             left: 20,
             child: ElevatedButton(
-              onPressed: _showNotificationDialog,
+              onPressed: () async {
+                // Abrir un diálogo para seleccionar el mensaje
+                String? selectedMessage = await showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Seleccionar Notificación'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          ListTile(
+                            title: const Text('Disponible'),
+                            onTap: () => Navigator.pop(context, 'Disponible'),
+                          ),
+                          ListTile(
+                            title: const Text('No disponible'),
+                            onTap: () => Navigator.pop(context, 'No disponible'),
+                          ),
+                          ListTile(
+                            title: const Text('Asientos no disponibles'),
+                            onTap: () => Navigator.pop(context, 'Asientos no disponibles'),
+                          ),
+                          ListTile(
+                            title: const Text('Sin cupos'),
+                            onTap: () => Navigator.pop(context, 'Sin cupos'),
+                          ),
+                          ListTile(
+                            title: const Text('Tengo problemas'),
+                            onTap: () => Navigator.pop(context, 'Tengo problemas'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+                // Enviar la notificación si se seleccionó un mensaje
+                if (selectedMessage != null) {
+                  await _sendNotification(selectedMessage);
+                }
+              },
+              child: const Text(
+                'Activar Notificación',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 0, 51, 122),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              ),
-              child: const Text(
-                'Activar Notificación',
-                style: TextStyle(color: Colors.white),
               ),
             ),
           ),
@@ -301,54 +318,10 @@ class _MapConductorState extends State<MapConductor> {
     );
   }
 
-  void _showNotificationDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Enviar Notificación'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _sendNotification('Disponible');
-                },
-                child: const Text('Disponible'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _sendNotification('No disponible');
-                },
-                child: const Text('No disponible'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _sendNotification('Asientos no disponibles');
-                },
-                child: const Text('Asientos no disponibles'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _sendNotification('Sin cupos');
-                },
-                child: const Text('Sin cupos'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _sendNotification('Tengo problemas');
-                },
-                child: const Text('Tengo problemas'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  @override
+  void dispose() {
+    _mapController.dispose();
+    _locationSubscription.cancel();
+    super.dispose();
   }
 }

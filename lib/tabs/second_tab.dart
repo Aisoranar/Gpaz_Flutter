@@ -362,7 +362,6 @@ Widget build(BuildContext context) {
             left: 10,
             right: 70,
             child: Container(
-<<<<<<< HEAD
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -375,10 +374,6 @@ Widget build(BuildContext context) {
                   ),
                 ],
               ),
-=======
-              padding: const EdgeInsets.all(10),
-              color: Colors.white,
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
