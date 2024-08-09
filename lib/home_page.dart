@@ -57,7 +57,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             backgroundColor: Colors.transparent,
             elevation: 0, // Elimina la sombra predeterminada del AppBar
             leading: IconButton(
-<<<<<<< HEAD
               icon: Container(
                 width: 40,
                 height: 40,
@@ -69,9 +68,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-=======
-              icon: const Icon(Icons.directions_bus, color: Color.fromARGB(247, 0, 51, 122)),
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
               onPressed: () {},
             ),
             title: Row(
@@ -137,7 +133,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildPopupMenuButton() {
-<<<<<<< HEAD
     return PopupMenuButton<int>(
       icon: Icon(
         Icons.menu,
@@ -146,24 +141,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       itemBuilder: (context) => [
         PopupMenuItem(
           value: 1,
-=======
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, color: Color.fromARGB(247, 0, 51, 122)),
-      onSelected: (String result) {
-        if (result == 'login') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
-        }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-          value: 'login',
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
           child: Row(
             children: [
-<<<<<<< HEAD
               Icon(
                 Icons.info,
                 color: Color.fromARGB(247, 0, 51, 122),
@@ -171,16 +150,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               SizedBox(width: 8),
               Text(
                 "¿Cómo Funciona?",
-=======
-              const Text(
-                'SOY CONDUCTOR',
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
                 style: TextStyle(
                   color: Color.fromARGB(247, 0, 51, 122),
                   fontWeight: FontWeight.bold,
                 ),
               ),
-<<<<<<< HEAD
             ],
           ),
         ),
@@ -199,13 +173,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   color: Color.fromARGB(247, 0, 51, 122),
                   fontWeight: FontWeight.bold,
                 ),
-=======
-              IconButton(
-                icon: const Icon(Icons.close, color: Color.fromARGB(247, 0, 51, 122)), // Azul oscuro
-                onPressed: () {
-                  Navigator.pop(context); // Cierra el menú cuando se presiona la "X"
-                },
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
               ),
             ],
           ),

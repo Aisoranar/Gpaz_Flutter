@@ -12,17 +12,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-<<<<<<< HEAD
 
   // Obtener la preferencia para saber si es el primer lanzamiento
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
 
   runApp(MyApp(isFirstLaunch: isFirstLaunch));
-=======
-  
-  runApp(const MyApp());
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
 }
 
 class MyApp extends StatelessWidget {
@@ -33,19 +28,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-<<<<<<< HEAD
       home: isFirstLaunch ? StartPage() : SelectOption(),
       onUnknownRoute: (settings) {
         // Manejo de rutas desconocidas
         return MaterialPageRoute(
           builder: (context) => SelectOption(),
-=======
-      home: const StartPage(),
-      onUnknownRoute: (settings) {
-        // Manejo de rutas desconocidas
-        return MaterialPageRoute(
-          builder: (context) => const HomePage(),
->>>>>>> d47a6b2d3dfe1ac3ef374d001a7a6e592b8abca9
         );
       },
       builder: (context, child) {
