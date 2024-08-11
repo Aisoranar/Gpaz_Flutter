@@ -4,7 +4,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_background/flutter_background.dart';
 import 'package:unipaz/conductor/profileconductor.dart';
+import 'package:unipaz/pages/login_page.dart';
+import 'package:unipaz/notifications/notificationsManager.dart';
+import 'package:unipaz/selectoption.dart';
 
 class MapConductor extends StatefulWidget {
   const MapConductor({super.key});
@@ -16,13 +21,16 @@ class MapConductor extends StatefulWidget {
 class _MapConductorState extends State<MapConductor> {
   late GoogleMapController _mapController;
   final Set<Marker> _markers = {};
-  LatLng _currentPosition = const LatLng(0, 0); // Inicialización predeterminada
+  LatLng _currentPosition = const LatLng(0, 0);
   final Location _location = Location();
   late String _driverPlate;
   bool _isTracking = false;
 
   late StreamSubscription<LocationData> _locationSubscription;
-  late BitmapDescriptor _customIcon; // Ícono personalizado
+  late BitmapDescriptor _customIcon;
+  late BitmapDescriptor _customParada;
+
+  NotificationsManager? notificationsManager;
 
   @override
   void initState() {
@@ -30,20 +38,27 @@ class _MapConductorState extends State<MapConductor> {
     _fetchDriverPlate();
     _getCurrentLocation();
     _listenToDriverLocation();
-    _loadCustomIcon(); // Cargar el ícono personalizado
+    
+    _loadCustomIcon();
+    notificationsManager = NotificationsManager(context);
   }
 
   Future<void> _loadCustomIcon() async {
     _customIcon = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(20, 20)), // Tamaño ajustado
+      const ImageConfiguration(size: Size(20, 20)),
       'Assets/icon/cotsem.png',
+    );
+    _customParada = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(20, 20)),
+      'Assets/icon/gpsiconparada.png',
     );
   }
 
   Future<void> _fetchDriverPlate() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       if (userDoc.exists) {
         setState(() {
           _driverPlate = userDoc['plate'] ?? 'Placa no disponible';
@@ -56,8 +71,8 @@ class _MapConductorState extends State<MapConductor> {
     final LocationData locationData = await _location.getLocation();
     setState(() {
       _currentPosition = LatLng(locationData.latitude!, locationData.longitude!);
-      _addOrUpdateMarker(_currentPosition, _driverPlate, locationData.heading ?? 0); // Pasar la dirección de movimiento
-      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14)); // Zoom inicial ajustado
+      _addOrUpdateMarker(_currentPosition, _driverPlate, locationData.heading ?? 0);
+      _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14));
     });
   }
 
@@ -67,11 +82,11 @@ class _MapConductorState extends State<MapConductor> {
         if (snapshot.docs.isNotEmpty) {
           final newMarkers = <Marker>{};
           for (var doc in snapshot.docs) {
-            final data = doc.data() as Map<String, dynamic>; // Conversión explícita
+            final data = doc.data() as Map<String, dynamic>;
             if (data != null) {
               final LatLng position = LatLng(data['latitude'], data['longitude']);
               final String plate = data['plate'] ?? 'Placa no disponible';
-              final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
+              final String message = data['message'] ?? '';
               final double heading = data['heading'] ?? 0.0;
 
               newMarkers.add(
@@ -80,18 +95,20 @@ class _MapConductorState extends State<MapConductor> {
                   position: position,
                   infoWindow: InfoWindow(
                     title: 'Placa $plate',
-                    snippet: message, // Mostrar el mensaje de la notificación aquí
+                    snippet: message,
                   ),
-                  icon: _customIcon, // Usar el ícono personalizado
-                  rotation: heading, // Rotar el ícono
+                  icon: _customIcon,
+                  rotation: heading,
                 ),
               );
             }
           }
+
+          newMarkers.addAll(_createMarkers()); // Agregar los puntos de parada
+
           setState(() {
             _markers.clear();
             _markers.addAll(newMarkers);
-            // Mover el mapa al nuevo marcador con menos zoom
             if (_markers.isNotEmpty) {
               LatLngBounds bounds = LatLngBounds(
                 southwest: LatLng(
@@ -103,7 +120,7 @@ class _MapConductorState extends State<MapConductor> {
                   _markers.map((m) => m.position.longitude).reduce((a, b) => a > b ? a : b),
                 ),
               );
-              _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50)); // Ajuste de zoom para ver todos los marcadores
+              _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
             }
           });
         }
@@ -111,6 +128,120 @@ class _MapConductorState extends State<MapConductor> {
         print('Error al actualizar la ubicación: $e');
       }
     });
+  }
+
+  Set<Marker> _createMarkers() {
+    Set<Marker> markers = {
+      Marker(
+        markerId: const MarkerId("parada1"),
+        position: const LatLng(7.0619238, -73.8648762),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 1",
+          snippet: "Frente a la Bomba San Silvestre Av. 52",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada2"),
+        position: const LatLng(7.061706, -73.8595833),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 2",
+          snippet: "Iglesia Oración Espíritu Santo",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada3"),
+        position: const LatLng(7.0612446, -73.8565249),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 3",
+          snippet: "Yamaha Av 52",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada5"),
+        position: const LatLng(7.0599965, -73.8513638),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 5",
+          snippet: "Cajero Servibanca de la 28",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada6"),
+        position: const LatLng(7.0573063, -73.8506163),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 6",
+          snippet: "Restaurante Pollo Arabe",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada7"),
+        position: const LatLng(7.0505295, -73.8472625),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 7",
+          snippet: "Intercambiador",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada8"),
+        position: const LatLng(7.050025, -73.8405155),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 8",
+          snippet: "Entrada Barrio Yarima",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada9"),
+        position: const LatLng(7.0436381, -73.8363577),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 9",
+          snippet: "El Palmar",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada10"),
+        position: const LatLng(7.0422154, -73.83111),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 10",
+          snippet: "Bosques de la Cira",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada11"),
+        position: const LatLng(7.0421841, -73.8290742),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 11",
+          snippet: "Frente a Bonanza - Bavaria",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada12"),
+        position: const LatLng(7.0424402, -73.8268916),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "Parada 12",
+          snippet: "El Retén",
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId("parada13"),
+        position: const LatLng(7.0659946, -73.7448674),
+        icon: _customParada,
+        infoWindow: const InfoWindow(
+          title: "UNIPAZ Centro Investigaciones Santa Lucia",
+          snippet: "Campus Universitario",
+        ),
+      ),
+    };
+    return markers;
   }
 
   void _addOrUpdateMarker(LatLng position, String plate, double heading) {
@@ -121,48 +252,77 @@ class _MapConductorState extends State<MapConductor> {
         title: 'Placa $plate',
         snippet: 'Ubicación actual',
       ),
-      icon: _customIcon, // Usar el ícono personalizado
-      rotation: heading, // Rotar el ícono según la dirección de movimiento
+      icon: _customIcon,
+      rotation: heading,
     );
     setState(() {
       _markers.add(marker);
-      // Mover el mapa al nuevo marcador con menos zoom
       _mapController.animateCamera(CameraUpdate.newLatLng(position));
     });
   }
 
   void _toggleTracking() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      if (_isTracking) {
-        // Desactivar el seguimiento
-        FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
-        _locationSubscription.cancel();
-      } else {
-        // Activar el seguimiento
-        _locationSubscription = _location.onLocationChanged.listen((LocationData newLocation) async {
-          LatLng newPosition = LatLng(newLocation.latitude!, newLocation.longitude!);
-          await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).set({
-            'latitude': newLocation.latitude,
-            'longitude': newLocation.longitude,
-            'plate': _driverPlate,
-            'heading': newLocation.heading, // Guardar la dirección de movimiento
-            // No se actualiza el mensaje aquí
-          }, SetOptions(merge: true)); // Merged update to avoid overwriting the message
-          _addOrUpdateMarker(newPosition, _driverPlate, newLocation.heading ?? 0);
-        });
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    if (_isTracking) {
+      // Desactivar el seguimiento
+      await FlutterBackground.disableBackgroundExecution();
+      try {
+        await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
+      } catch (e) {
+        print('Error al eliminar la ubicación: $e');
+      }
+      _locationSubscription.cancel();
+      if (notificationsManager != null) {
+        await notificationsManager!.showNotification(
+          'GPS Desactivado',
+          'Se ha desactivado el GPS correctamente.',
+        );
       }
       setState(() {
-        _isTracking = !_isTracking;
+        _isTracking = false;
+        _markers.clear(); // Eliminar marcador al apagar la ubicación
       });
+    } else {
+      // Activar el seguimiento
+      bool success = await FlutterBackground.enableBackgroundExecution();
+      if (success) {
+        _locationSubscription = _location.onLocationChanged.listen((LocationData newLocation) async {
+          LatLng newPosition = LatLng(newLocation.latitude!, newLocation.longitude!);
+          try {
+            await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).set({
+              'latitude': newLocation.latitude,
+              'longitude': newLocation.longitude,
+              'plate': _driverPlate,
+              'heading': newLocation.heading,
+            }, SetOptions(merge: true));
+          } catch (e) {
+            print('Error al guardar la ubicación: $e');
+          }
+          _addOrUpdateMarker(newPosition, _driverPlate, newLocation.heading ?? 0);
+        });
+        if (notificationsManager != null) {
+          await notificationsManager!.showNotification(
+            'GPS Activado',
+            'Se ha activado el GPS correctamente.',
+          );
+        }
+        setState(() {
+          _isTracking = true;
+        });
+      } else {
+        print('No se pudo activar la ejecución en segundo plano.');
+      }
     }
   }
+}
+
+
 
   Future<void> _sendNotification(String message) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        // Validar si el mensaje es uno de los predefinidos
         const allowedMessages = [
           'Disponible',
           'No disponible',
@@ -172,7 +332,6 @@ class _MapConductorState extends State<MapConductor> {
         ];
 
         if (allowedMessages.contains(message)) {
-          // Primero, actualizar la notificación
           await FirebaseFirestore.instance.collection('notifications').add({
             'user_id': user.uid,
             'plate': _driverPlate,
@@ -180,7 +339,6 @@ class _MapConductorState extends State<MapConductor> {
             'timestamp': FieldValue.serverTimestamp(),
           });
 
-          // Luego, actualizar el mensaje en la colección driver_locations
           await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).update({
             'message': message,
           });
@@ -193,9 +351,63 @@ class _MapConductorState extends State<MapConductor> {
     }
   }
 
+  void _logout() async {
+  final shouldLogout = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Cerrar Sesión'),
+        content: const Text('¿Está seguro de que desea cerrar sesión?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Sí'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (shouldLogout == true) {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Desactivar el seguimiento y eliminar la ubicación
+      await FlutterBackground.disableBackgroundExecution();
+      try {
+        // Eliminar la ubicación del conductor en Firestore
+        await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
+      } catch (e) {
+        print('Error al eliminar la ubicación: $e');
+      }
+
+      // Cancelar la suscripción a la ubicación
+      if (_locationSubscription != null) {
+        await _locationSubscription.cancel();
+      }
+
+      // Cerrar sesión en Firebase
+      await FirebaseAuth.instance.signOut();
+
+      // Redirigir al usuario a SelectOption
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => SelectOption()),
+      );
+    }
+  }
+}
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+Widget build(BuildContext context) {
+  return WillPopScope(
+    onWillPop: () async {
+      _logout(); // Cerrar sesión cuando se presiona el botón de retroceso
+      return false; // Prevenir la acción de retroceso predeterminada
+    },
+    child: Scaffold(
       appBar: AppBar(
         title: const Text(
           'Mapa del Conductor',
@@ -212,25 +424,23 @@ class _MapConductorState extends State<MapConductor> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _logout,
+          ),
         ],
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        // Se eliminó el botón de retroceso
       ),
       body: Stack(
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(
               target: _currentPosition,
-              zoom: 14, // Menos zoom inicial
+              zoom: 14,
             ),
             markers: _markers,
             onMapCreated: (GoogleMapController controller) {
               _mapController = controller;
-              // Mover el mapa al inicio de la ubicación actual con menos zoom
               _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14));
             },
           ),
@@ -248,7 +458,7 @@ class _MapConductorState extends State<MapConductor> {
                 style: const TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 0, 51, 122),
+                backgroundColor: _isTracking ? Colors.red : Colors.blue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -259,9 +469,8 @@ class _MapConductorState extends State<MapConductor> {
           Positioned(
             bottom: 80,
             left: 20,
-            child: ElevatedButton(
+            child: ElevatedButton.icon(
               onPressed: () async {
-                // Abrir un diálogo para seleccionar el mensaje
                 String? selectedMessage = await showDialog<String>(
                   context: context,
                   builder: (BuildContext context) {
@@ -295,13 +504,13 @@ class _MapConductorState extends State<MapConductor> {
                     );
                   },
                 );
-                // Enviar la notificación si se seleccionó un mensaje
                 if (selectedMessage != null) {
                   await _sendNotification(selectedMessage);
                 }
               },
-              child: const Text(
-                'Activar Notificación',
+              icon: const Icon(Icons.send, color: Colors.white),
+              label: const Text(
+                'Enviar Notificación',
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
@@ -314,7 +523,7 @@ class _MapConductorState extends State<MapConductor> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 

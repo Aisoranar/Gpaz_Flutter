@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Importar FirebaseAuth
 import 'home_page.dart';
 import 'pages/login_page.dart';
+import 'package:unipaz/conductor/mapconductor.dart'; // Importar MapConductor
 
 class SelectOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -67,10 +71,19 @@ class SelectOption extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
+                        if (currentUser != null) {
+                          // Si el usuario ya está autenticado, redirigir al mapa del conductor
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const MapConductor()),
+                          );
+                        } else {
+                          // Si no está autenticado, redirigir a la página de inicio de sesión
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                          );
+                        }
                       },
                       icon: Icon(Icons.directions_bus, size: 24), // Icono de bus
                       label: Text(

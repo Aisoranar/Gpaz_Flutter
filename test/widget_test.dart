@@ -5,7 +5,7 @@ import 'package:unipaz/main.dart';
 void main() {
   testWidgets('Check tabs content', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp(isFirstLaunch: false));
+    await tester.pumpWidget(const MyApp(isFirstLaunch: false, currentUser: null,));
 
     // Verify the initial tab content.
     expect(find.text('1ST TAB'), findsOneWidget);
