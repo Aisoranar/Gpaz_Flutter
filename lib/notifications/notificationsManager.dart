@@ -28,9 +28,17 @@ class NotificationsManager {
       importance: Importance.high,
       priority: Priority.high,
       ongoing: false, // Hace que la notificación no sea persistente
+      ticker: 'ticker',
+      playSound: true,
+      enableVibration: true,
+      // La clave aquí es utilizar `flags` dentro de `PendingIntent`
+      fullScreenIntent: true,
+      category: 'service',
     );
+
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
+
     await flutterLocalNotificationsPlugin.show(
       0, // ID de la notificación
       title, // Título de la notificación

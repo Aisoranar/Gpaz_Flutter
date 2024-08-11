@@ -7,9 +7,8 @@ import 'package:location/location.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:unipaz/conductor/profileconductor.dart';
-import 'package:unipaz/pages/login_page.dart';
-import 'package:unipaz/notifications/notificationsManager.dart';
 import 'package:unipaz/selectoption.dart';
+import 'package:unipaz/notifications/notificationsManager.dart';
 
 class MapConductor extends StatefulWidget {
   const MapConductor({super.key});
@@ -37,8 +36,6 @@ class _MapConductorState extends State<MapConductor> {
     super.initState();
     _fetchDriverPlate();
     _getCurrentLocation();
-    _listenToDriverLocation();
-    
     _loadCustomIcon();
     notificationsManager = NotificationsManager(context);
   }
@@ -77,6 +74,27 @@ class _MapConductorState extends State<MapConductor> {
   }
 
   void _listenToDriverLocation() {
+    _locationSubscription = _location.onLocationChanged.listen((LocationData newLocation) async {
+      LatLng newPosition = LatLng(newLocation.latitude!, newLocation.longitude!);
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).set({
+            'latitude': newLocation.latitude,
+            'longitude': newLocation.longitude,
+            'plate': _driverPlate,
+            'heading': newLocation.heading,
+          }, SetOptions(merge: true));
+        }
+        _addOrUpdateMarker(newPosition, _driverPlate, newLocation.heading ?? 0);
+
+        // Ajustar el zoom del mapa al compartir ubicación
+        _mapController.animateCamera(CameraUpdate.newLatLngZoom(newPosition, 14)); // Zoom más cercano
+      } catch (e) {
+        print('Error al guardar la ubicación: $e');
+      }
+    });
+
     FirebaseFirestore.instance.collection('driver_locations').snapshots().listen((snapshot) {
       try {
         if (snapshot.docs.isNotEmpty) {
@@ -155,8 +173,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0612446, -73.8565249),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 3",
-          snippet: "Yamaha Av 52",
+          title: "Yamaha Av 52",
         ),
       ),
       Marker(
@@ -164,8 +181,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0599965, -73.8513638),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 5",
-          snippet: "Cajero Servibanca de la 28",
+          title: "Cajero Servibanca de la 28",
         ),
       ),
       Marker(
@@ -173,8 +189,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0573063, -73.8506163),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 6",
-          snippet: "Restaurante Pollo Arabe",
+          title: "Restaurante Pollo Arabe",
         ),
       ),
       Marker(
@@ -182,8 +197,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0505295, -73.8472625),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 7",
-          snippet: "Intercambiador",
+          title: "Intercambiador",
         ),
       ),
       Marker(
@@ -191,8 +205,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.050025, -73.8405155),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 8",
-          snippet: "Entrada Barrio Yarima",
+          title: "Entrada Barrio Yarima",
         ),
       ),
       Marker(
@@ -200,8 +213,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0436381, -73.8363577),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 9",
-          snippet: "El Palmar",
+          title: "El Palmar",
         ),
       ),
       Marker(
@@ -209,8 +221,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0422154, -73.83111),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 10",
-          snippet: "Bosques de la Cira",
+          title: "Bosques de la Cira",
         ),
       ),
       Marker(
@@ -218,8 +229,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0421841, -73.8290742),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 11",
-          snippet: "Frente a Bonanza - Bavaria",
+          title: "Frente a Bonanza - Bavaria",
         ),
       ),
       Marker(
@@ -227,8 +237,7 @@ class _MapConductorState extends State<MapConductor> {
         position: const LatLng(7.0424402, -73.8268916),
         icon: _customParada,
         infoWindow: const InfoWindow(
-          title: "Parada 12",
-          snippet: "El Retén",
+          title: "El Retén",
         ),
       ),
       Marker(
@@ -262,62 +271,47 @@ class _MapConductorState extends State<MapConductor> {
   }
 
   void _toggleTracking() async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    if (_isTracking) {
-      // Desactivar el seguimiento
-      await FlutterBackground.disableBackgroundExecution();
-      try {
-        await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
-      } catch (e) {
-        print('Error al eliminar la ubicación: $e');
-      }
-      _locationSubscription.cancel();
-      if (notificationsManager != null) {
-        await notificationsManager!.showNotification(
-          'GPS Desactivado',
-          'Se ha desactivado el GPS correctamente.',
-        );
-      }
-      setState(() {
-        _isTracking = false;
-        _markers.clear(); // Eliminar marcador al apagar la ubicación
-      });
-    } else {
-      // Activar el seguimiento
-      bool success = await FlutterBackground.enableBackgroundExecution();
-      if (success) {
-        _locationSubscription = _location.onLocationChanged.listen((LocationData newLocation) async {
-          LatLng newPosition = LatLng(newLocation.latitude!, newLocation.longitude!);
-          try {
-            await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).set({
-              'latitude': newLocation.latitude,
-              'longitude': newLocation.longitude,
-              'plate': _driverPlate,
-              'heading': newLocation.heading,
-            }, SetOptions(merge: true));
-          } catch (e) {
-            print('Error al guardar la ubicación: $e');
-          }
-          _addOrUpdateMarker(newPosition, _driverPlate, newLocation.heading ?? 0);
-        });
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      if (_isTracking) {
+        // Desactivar el seguimiento
+        await FlutterBackground.disableBackgroundExecution();
+        try {
+          await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
+        } catch (e) {
+          print('Error al eliminar la ubicación: $e');
+        }
+        _locationSubscription.cancel();
         if (notificationsManager != null) {
           await notificationsManager!.showNotification(
-            'GPS Activado',
-            'Se ha activado el GPS correctamente.',
+            'GPS Desactivado',
+            'Se ha desactivado el GPS correctamente.',
           );
         }
         setState(() {
-          _isTracking = true;
+          _isTracking = false;
+          _markers.clear(); // Eliminar marcador al apagar la ubicación
         });
       } else {
-        print('No se pudo activar la ejecución en segundo plano.');
+        // Activar el seguimiento
+        bool success = await FlutterBackground.enableBackgroundExecution();
+        if (success) {
+          _listenToDriverLocation();
+          if (notificationsManager != null) {
+            await notificationsManager!.showNotification(
+              'GPS Activado',
+              'Se ha activado el GPS correctamente.',
+            );
+          }
+          setState(() {
+            _isTracking = true;
+          });
+        } else {
+          print('No se pudo activar la ejecución en segundo plano.');
+        }
       }
     }
   }
-}
-
-
 
   Future<void> _sendNotification(String message) async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -352,178 +346,181 @@ class _MapConductorState extends State<MapConductor> {
   }
 
   void _logout() async {
-  final shouldLogout = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Cerrar Sesión'),
-        content: const Text('¿Está seguro de que desea cerrar sesión?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Sí'),
-          ),
-        ],
-      );
-    },
-  );
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cerrar Sesión'),
+          content: const Text('¿Está seguro de que desea cerrar sesión?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Sí'),
+            ),
+          ],
+        );
+      },
+    );
 
-  if (shouldLogout == true) {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      // Desactivar el seguimiento y eliminar la ubicación
-      await FlutterBackground.disableBackgroundExecution();
-      try {
-        // Eliminar la ubicación del conductor en Firestore
-        await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
-      } catch (e) {
-        print('Error al eliminar la ubicación: $e');
+    if (shouldLogout == true) {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Desactivar el seguimiento y eliminar la ubicación
+        await FlutterBackground.disableBackgroundExecution();
+        try {
+          // Eliminar la ubicación del conductor en Firestore
+          await FirebaseFirestore.instance.collection('driver_locations').doc(user.uid).delete();
+        } catch (e) {
+          print('Error al eliminar la ubicación: $e');
+        }
+
+        // Cancelar la suscripción a la ubicación
+        if (_locationSubscription != null) {
+          await _locationSubscription.cancel();
+        }
+
+        // Cerrar sesión en Firebase
+        await FirebaseAuth.instance.signOut();
+
+        // Redirigir al usuario a SelectOption
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => SelectOption()),
+        );
       }
-
-      // Cancelar la suscripción a la ubicación
-      if (_locationSubscription != null) {
-        await _locationSubscription.cancel();
-      }
-
-      // Cerrar sesión en Firebase
-      await FirebaseAuth.instance.signOut();
-
-      // Redirigir al usuario a SelectOption
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => SelectOption()),
-      );
     }
   }
-}
+  
 
   @override
-Widget build(BuildContext context) {
-  return WillPopScope(
-    onWillPop: () async {
-      _logout(); // Cerrar sesión cuando se presiona el botón de retroceso
-      return false; // Prevenir la acción de retroceso predeterminada
-    },
-    child: Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Mapa del Conductor',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color.fromARGB(255, 0, 51, 122),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileConductor()),
-              );
-            },
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        _logout(); // Cerrar sesión cuando se presiona el botón de retroceso
+        return false; // Prevenir la acción de retroceso predeterminada
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Mapa del Conductor',
+            style: TextStyle(color: Colors.white),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: _logout,
-          ),
-        ],
-        // Se eliminó el botón de retroceso
-      ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _currentPosition,
-              zoom: 14,
-            ),
-            markers: _markers,
-            onMapCreated: (GoogleMapController controller) {
-              _mapController = controller;
-              _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14));
-            },
-          ),
-          Positioned(
-            bottom: 140,
-            left: 20,
-            child: ElevatedButton.icon(
-              onPressed: _toggleTracking,
-              icon: Icon(
-                _isTracking ? Icons.location_off : Icons.location_on,
-                color: Colors.white,
-              ),
-              label: Text(
-                _isTracking ? 'Apagar Ubicación' : 'Activar Ubicación',
-                style: const TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isTracking ? Colors.red : Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 80,
-            left: 20,
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                String? selectedMessage = await showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Seleccionar Notificación'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          ListTile(
-                            title: const Text('Disponible'),
-                            onTap: () => Navigator.pop(context, 'Disponible'),
-                          ),
-                          ListTile(
-                            title: const Text('No disponible'),
-                            onTap: () => Navigator.pop(context, 'No disponible'),
-                          ),
-                          ListTile(
-                            title: const Text('Asientos no disponibles'),
-                            onTap: () => Navigator.pop(context, 'Asientos no disponibles'),
-                          ),
-                          ListTile(
-                            title: const Text('Sin cupos'),
-                            onTap: () => Navigator.pop(context, 'Sin cupos'),
-                          ),
-                          ListTile(
-                            title: const Text('Tengo problemas'),
-                            onTap: () => Navigator.pop(context, 'Tengo problemas'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+          backgroundColor: const Color.fromARGB(255, 0, 51, 122),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileConductor()),
                 );
-                if (selectedMessage != null) {
-                  await _sendNotification(selectedMessage);
-                }
               },
-              icon: const Icon(Icons.send, color: Colors.white),
-              label: const Text(
-                'Enviar Notificación',
-                style: TextStyle(color: Colors.white),
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white),
+              onPressed: _logout,
+            ),
+          ],
+          // Se eliminó el botón de retroceso
+        ),
+        body: Stack(
+          children: [
+            GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: _currentPosition,
+                zoom: 14,
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 0, 51, 122),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+              markers: _markers,
+              onMapCreated: (GoogleMapController controller) {
+                _mapController = controller;
+                _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14));
+              },
+            ),
+            
+            Positioned(
+              bottom: 140,
+              left: 20,
+              child: ElevatedButton.icon(
+                onPressed: _toggleTracking,
+                icon: Icon(
+                  _isTracking ? Icons.location_off : Icons.location_on,
+                  color: Colors.white,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                label: Text(
+                  _isTracking ? 'Apagar Ubicación' : 'Activar Ubicación',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isTracking ? Colors.red : Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                ),
               ),
             ),
-          ),
-        ],
-      )),
+            Positioned(
+              bottom: 80,
+              left: 20,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  String? selectedMessage = await showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Seleccionar Notificación'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ListTile(
+                              title: const Text('Disponible'),
+                              onTap: () => Navigator.pop(context, 'Disponible'),
+                            ),
+                            ListTile(
+                              title: const Text('No disponible'),
+                              onTap: () => Navigator.pop(context, 'No disponible'),
+                            ),
+                            ListTile(
+                              title: const Text('Asientos no disponibles'),
+                              onTap: () => Navigator.pop(context, 'Asientos no disponibles'),
+                            ),
+                            ListTile(
+                              title: const Text('Sin cupos'),
+                              onTap: () => Navigator.pop(context, 'Sin cupos'),
+                            ),
+                            ListTile(
+                              title: const Text('Tengo problemas'),
+                              onTap: () => Navigator.pop(context, 'Tengo problemas'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                  if (selectedMessage != null) {
+                    await _sendNotification(selectedMessage);
+                  }
+                },
+                icon: const Icon(Icons.send, color: Colors.white),
+                label: const Text(
+                  'Enviar Notificación',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 0, 51, 122),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unipaz/tabs/second_tab.dart';
 
 class ThirdTab extends StatefulWidget {
   const ThirdTab({super.key});
@@ -206,7 +207,8 @@ class RouteDescriptionScreen extends StatelessWidget {
   final String imagePath;
   final String markerId;
 
-  const RouteDescriptionScreen({super.key, 
+  const RouteDescriptionScreen({
+    super.key,
     required this.title,
     required this.description,
     required this.imagePath,
@@ -264,31 +266,31 @@ class RouteDescriptionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(247, 0, 51, 122),
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Cerrar',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
+              ElevatedButton(
+                onPressed: () => _navigateToMap(context, title),
+                child: const Text('Ver en el mapa'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color.fromARGB(247, 0, 51, 122),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
-                  
-                ],
+                ),
               ),
-              const SizedBox(height: 16.0),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToMap(BuildContext context, String title) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SecondTab(
+          markerId: markerId,
+          showBackButton: true, // Mostrar botón de regreso
         ),
       ),
     );

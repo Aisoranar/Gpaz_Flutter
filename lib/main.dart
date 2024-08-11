@@ -58,6 +58,7 @@ class MyApp extends StatelessWidget {
         // Manejo de rutas desconocidas
         return MaterialPageRoute(
           builder: (context) => SelectOption(),
+          
         );
       },
       builder: (context, child) {
