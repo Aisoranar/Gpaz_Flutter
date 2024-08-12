@@ -270,6 +270,9 @@ class _LoginPageState extends State<LoginPage> {
                   onTap: signUserIn,
                   buttonColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
+
+                
+/* REGISTRO CONDUCTOR - QUITAR COMENTARIO PARA REGISTRO
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -285,6 +288,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+*/
+
                 const SizedBox(height: 50),
               ],
             ),
