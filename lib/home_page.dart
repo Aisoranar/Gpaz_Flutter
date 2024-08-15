@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:unipaz/pages/login_page.dart';
 import 'package:unipaz/pages/start_page.dart';
 import 'package:unipaz/tabs/firts_tab.dart';
 import 'package:unipaz/tabs/second_tab.dart';
@@ -60,7 +59,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               icon: Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.rectangle, // Forma rectangular
                   image: DecorationImage(
                     image: AssetImage('Assets/icon/unipaz.png'),
@@ -134,12 +133,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildPopupMenuButton() {
     return PopupMenuButton<int>(
-      icon: Icon(
+      icon: const Icon(
         Icons.menu,
         color: Color.fromARGB(247, 0, 51, 122),
       ),
       itemBuilder: (context) => [
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 1,
           child: Row(
             children: [
@@ -158,7 +157,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ],
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 2,
           child: Row(
             children: [
@@ -183,7 +182,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StartPage(fromHomePage: true),
+              builder: (context) => const StartPage(fromHomePage: true),
             ),
           );
         } else if (value == 2) {

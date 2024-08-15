@@ -28,11 +28,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: isFirstLaunch ? StartPage() : SelectOption(),
+      home: isFirstLaunch ? const StartPage() : const SelectOption(),
       onUnknownRoute: (settings) {
         // Manejo de rutas desconocidas
         return MaterialPageRoute(
-          builder: (context) => SelectOption(),
+          builder: (context) => const SelectOption(),
         );
       },
       builder: (context, child) {

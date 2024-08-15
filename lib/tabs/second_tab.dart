@@ -325,6 +325,7 @@ class _SecondTabState extends State<SecondTab> {
   @override
  @override
 Widget build(BuildContext context) {
+  // ignore: deprecated_member_use
   return WillPopScope(
     onWillPop: () async {
       // Show a dialog or any other action to prevent changing the tab
@@ -338,7 +339,7 @@ Widget build(BuildContext context) {
                   onMapCreated: (GoogleMapController controller) {
                     _mapController = controller;
                   },
-                  initialCameraPosition: CameraPosition(
+                  initialCameraPosition: const CameraPosition(
                     target: _initialPosition,
                     zoom: 14,
                   ),
@@ -349,24 +350,24 @@ Widget build(BuildContext context) {
                   },
                   myLocationEnabled: true,
                   myLocationButtonEnabled: true,
-                  gestureRecognizers: Set()
+                  gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{}
                     ..add(
                       Factory<PanGestureRecognizer>(
                         () => PanGestureRecognizer(),
                       ),
                     ),
                 )
-              : Center(child: CircularProgressIndicator()),
+              : const Center(child: CircularProgressIndicator()),
           Positioned(
             bottom: 520,
             left: 10,
             right: 70,
             child: Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     offset: Offset(0, 2),
@@ -379,27 +380,27 @@ Widget build(BuildContext context) {
                 children: [
                   Text(
                     'Distancia a la siguiente parada: $_distance',
-                    style: TextStyle(
+                    style: const TextStyle(
                       backgroundColor: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: Colors.black87,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Tiempo estimado: $_duration',
-                    style: TextStyle(
+                    style: const TextStyle(
                       backgroundColor: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: Colors.black87,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Conductor Cercano: $_nextStop',
-                    style: TextStyle(
+                    style: const TextStyle(
                       backgroundColor: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,

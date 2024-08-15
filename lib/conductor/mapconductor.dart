@@ -10,6 +10,7 @@ class MapConductor extends StatefulWidget {
   const MapConductor({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MapConductorState createState() => _MapConductorState();
 }
 
@@ -67,27 +68,25 @@ class _MapConductorState extends State<MapConductor> {
         if (snapshot.docs.isNotEmpty) {
           final newMarkers = <Marker>{};
           for (var doc in snapshot.docs) {
-            final data = doc.data() as Map<String, dynamic>; // Conversión explícita
-            if (data != null) {
-              final LatLng position = LatLng(data['latitude'], data['longitude']);
-              final String plate = data['plate'] ?? 'Placa no disponible';
-              final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
-              final double heading = data['heading'] ?? 0.0;
+            final data = doc.data(); // Conversión explícita
+            final LatLng position = LatLng(data['latitude'], data['longitude']);
+            final String plate = data['plate'] ?? 'Placa no disponible';
+            final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
+            final double heading = data['heading'] ?? 0.0;
 
-              newMarkers.add(
-                Marker(
-                  markerId: MarkerId(doc.id),
-                  position: position,
-                  infoWindow: InfoWindow(
-                    title: 'Placa $plate',
-                    snippet: message, // Mostrar el mensaje de la notificación aquí
-                  ),
-                  icon: _customIcon, // Usar el ícono personalizado
-                  rotation: heading, // Rotar el ícono
+            newMarkers.add(
+              Marker(
+                markerId: MarkerId(doc.id),
+                position: position,
+                infoWindow: InfoWindow(
+                  title: 'Placa $plate',
+                  snippet: message, // Mostrar el mensaje de la notificación aquí
                 ),
-              );
-            }
-          }
+                icon: _customIcon, // Usar el ícono personalizado
+                rotation: heading, // Rotar el ícono
+              ),
+            );
+                    }
           setState(() {
             _markers.clear();
             _markers.addAll(newMarkers);
@@ -300,16 +299,16 @@ class _MapConductorState extends State<MapConductor> {
                   await _sendNotification(selectedMessage);
                 }
               },
-              child: const Text(
-                'Activar Notificación',
-                style: TextStyle(color: Colors.white),
-              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 0, 51, 122),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              ),
+              child: const Text(
+                'Activar Notificación',
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ),

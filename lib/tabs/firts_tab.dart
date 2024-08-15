@@ -19,7 +19,7 @@ class FirstTab extends StatelessWidget {
               child: SizedBox.expand(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(0.0),
-                  child: Image(
+                  child: const Image(
                     image: AssetImage('Assets/images/bus_imagen1.jpg'),
                     fit: BoxFit.cover,
                   ),

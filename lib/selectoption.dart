@@ -3,11 +3,13 @@ import 'home_page.dart';
 import 'pages/login_page.dart';
 
 class SelectOption extends StatelessWidget {
+  const SelectOption({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Color.fromARGB(255, 0, 51, 122), // Azul oscuro
         ),
         child: Center(
@@ -18,8 +20,8 @@ class SelectOption extends StatelessWidget {
                 'Assets/icon/logounipazblanco.png',
                 height: 200, // Ajusta la altura según sea necesario
               ),
-              SizedBox(height: 20), // Espacio entre la imagen y el texto
-              Text(
+              const SizedBox(height: 20), // Espacio entre la imagen y el texto
+              const Text(
                 '¡Bienvenido a Gpaz!',
                 style: TextStyle(
                   color: Colors.white,
@@ -27,16 +29,16 @@ class SelectOption extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 50), // Espacio entre el texto y los botones
-              Container(
+              const SizedBox(height: 50), // Espacio entre el texto y los botones
+              SizedBox(
                 width: 250, // Fija el ancho de los botones
                 child: Column(
                   children: [
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Color.fromARGB(255, 0, 51, 122),
+                        foregroundColor: const Color.fromARGB(255, 0, 51, 122),
                         backgroundColor: Colors.white, // Texto azul oscuro
-                        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
@@ -44,11 +46,11 @@ class SelectOption extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
+                          MaterialPageRoute(builder: (context) => const HomePage()),
                         );
                       },
-                      icon: Icon(Icons.person, size: 24), // Icono de persona
-                      label: Text(
+                      icon: const Icon(Icons.person, size: 24), // Icono de persona
+                      label: const Text(
                         'Soy Unipaz',
                         style: TextStyle(
                           fontSize: 20,
@@ -56,12 +58,12 @@ class SelectOption extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20), // Espacio entre los dos botones
+                    const SizedBox(height: 20), // Espacio entre los dos botones
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.green, // Texto blanco
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
@@ -69,11 +71,11 @@ class SelectOption extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          MaterialPageRoute(builder: (context) => const LoginPage()),
                         );
                       },
-                      icon: Icon(Icons.directions_bus, size: 24), // Icono de bus
-                      label: Text(
+                      icon: const Icon(Icons.directions_bus, size: 24), // Icono de bus
+                      label: const Text(
                         'Soy Conductor',
                         style: TextStyle(
                           fontSize: 20,
