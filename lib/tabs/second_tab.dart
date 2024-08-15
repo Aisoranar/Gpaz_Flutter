@@ -9,7 +9,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SecondTab extends StatefulWidget {
-  const SecondTab({super.key});
+  final String? markerId; // Nuevo parámetro para el ID del marcador
+  final bool showBackButton; // Parámetro para mostrar el botón de regreso
+
+  const SecondTab({super.key, this.markerId, this.showBackButton = false});
 
   @override
   _SecondTabState createState() => _SecondTabState();
@@ -43,6 +46,28 @@ class _SecondTabState extends State<SecondTab> {
     _getUserLocation();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Centrar el mapa en el marcador si markerId está presente
+    if (widget.markerId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final marker = _markers.firstWhere(
+          (m) => m.markerId.value == widget.markerId,
+          orElse: () =>
+              Marker(markerId: MarkerId('dummy'), position: LatLng(0, 0)),
+        );
+        if (marker.markerId.value != 'dummy') {
+          _mapController.animateCamera(
+            CameraUpdate.newLatLngZoom(marker.position, 16), // Centrar y hacer zoom en el marcador
+          );
+          // Seleccionar el marcador para mostrar el InfoWindow
+          _mapController.showMarkerInfoWindow(marker.markerId);
+        }
+      });
+    }
+  }
+
   Future<void> _loadCustomIcons() async {
     _user1Icon = await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(20, 20)),
@@ -68,7 +93,11 @@ class _SecondTabState extends State<SecondTab> {
     double? latitude = prefs.getDouble('last_latitude_second_tab');
     double? longitude = prefs.getDouble('last_longitude_second_tab');
     if (latitude != null && longitude != null) {
-      _mapController.animateCamera(CameraUpdate.newLatLng(LatLng(latitude, longitude)));
+      _mapController
+          .animateCamera(CameraUpdate.newLatLng(LatLng(latitude, longitude)));
+    } else {
+      // Centrar en la posición inicial si no hay posición guardada
+      _mapController.animateCamera(CameraUpdate.newLatLng(_initialPosition));
     }
   }
 
@@ -107,13 +136,15 @@ class _SecondTabState extends State<SecondTab> {
     String nextStopName = '';
 
     for (var marker in _markers) {
-      final String url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${_userLocation!.latitude},${_userLocation!.longitude}&destination=${marker.position.latitude},${marker.position.longitude}&key=$apiKey';
+      final String url =
+          'https://maps.googleapis.com/maps/api/directions/json?origin=${_userLocation!.latitude},${_userLocation!.longitude}&destination=${marker.position.latitude},${marker.position.longitude}&key=$apiKey';
 
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final legs = data['routes'][0]['legs'][0];
-        final List<LatLng> polylineCoordinates = _decodePolyline(data['routes'][0]['overview_polyline']['points']);
+        final List<LatLng> polylineCoordinates =
+            _decodePolyline(data['routes'][0]['overview_polyline']['points']);
 
         if (nextStopDistance == '') {
           nextStopDistance = legs['distance']['text'];
@@ -178,7 +209,10 @@ class _SecondTabState extends State<SecondTab> {
   }
 
   void _listenToDriversLocations() {
-    _firestore.collection('driver_locations').snapshots().listen((QuerySnapshot snapshot) {
+    _firestore
+        .collection('driver_locations')
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
       _updateMarkers(snapshot.docs);
     });
   }
@@ -322,8 +356,7 @@ class _SecondTabState extends State<SecondTab> {
     return markers;
   }
 
-  @override
- @override
+@override
 Widget build(BuildContext context) {
   // ignore: deprecated_member_use
   return WillPopScope(
@@ -410,11 +443,9 @@ Widget build(BuildContext context) {
                 ],
               ),
             ),
-          ),
-        ],
+      )],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

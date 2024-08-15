@@ -68,6 +68,7 @@ dependencies:
   dotted_border: ^2.1.0
   cached_network_image: ^3.3.1
   animated_text_kit: ^4.2.2
+  flutter_background: ^1.2.0
   
 
 
@@ -106,7 +107,7 @@ flutter:
     - lib/images/
     - Assets/
     - Assets/icon/
-    - Assets/Logo11.png
+    - Assets/logo11.png
     - Assets/images/
     - Assets/images/gps.svg
     - Assets/images/home.svg
@@ -125,7 +126,6 @@ flutter:
     - Assets/images/paradas/parada_bosquecira.jpg
     - Assets/images/paradas/muypronto.jpg
     - Assets/images/support.png
-    - Assets/images/support.jpeg
     - Assets/icon/logounipazblanco.png
     
   #   - images/a_dot_ham.jpeg

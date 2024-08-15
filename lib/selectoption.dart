@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Importar FirebaseAuth
 import 'home_page.dart';
 import 'pages/login_page.dart';
+import 'package:unipaz/conductor/mapconductor.dart'; // Importar MapConductor
 
 class SelectOption extends StatelessWidget {
   const SelectOption({super.key});
 
   @override
   Widget build(BuildContext context) {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(

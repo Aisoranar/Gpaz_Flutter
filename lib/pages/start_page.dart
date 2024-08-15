@@ -100,13 +100,13 @@ class StartPage extends StatelessWidget {
         skip: const Text(
           "Saltar",
           style: TextStyle(
-            color: Colors.white,
+            color: Color.fromARGB(247, 0, 51, 122),
             fontWeight: FontWeight.bold,
           ),
         ),
         next: const Icon(
           Icons.arrow_forward,
-          color: Colors.white,
+          color: Color.fromARGB(247, 0, 51, 122),
         ),
         done: ElevatedButton(
           onPressed: () async {

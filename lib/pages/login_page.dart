@@ -153,38 +153,39 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void signUserIn() async {
-    showDialog(
-      context: context,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+  showDialog(
+    context: context,
+    builder: (context) => const Center(child: CircularProgressIndicator()),
+  );
+
+  try {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: emailController.text,
+      password: passwordController.text,
     );
 
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
+    await _saveUserCredentials(emailController.text, passwordController.text);
 
-      await _saveUserCredentials(emailController.text, passwordController.text);
-      await _updateDriverLocation();
+    Navigator.pop(context);
 
-      Navigator.pop(context);
+    // Navegar a la pantalla del mapa del conductor y comenzar a rastrear la ubicación
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MapConductor()),
+    );
+  } on FirebaseAuthException catch (e) {
+    Navigator.pop(context);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MapConductor()),
-      );
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-
-      if (e.code == 'user-not-found') {
-        showError('Correo no encontrado');
-      } else if (e.code == 'wrong-password') {
-        showError('Contraseña Incorrecta');
-      } else {
-        showError(e.message!);
-      }
+    if (e.code == 'user-not-found') {
+      showError('Correo no encontrado');
+    } else if (e.code == 'wrong-password') {
+      showError('Contraseña Incorrecta');
+    } else {
+      showError(e.message!);
     }
   }
+}
+
 
   void showError(String message) {
     showDialog(
@@ -269,6 +270,9 @@ class _LoginPageState extends State<LoginPage> {
                   onTap: signUserIn,
                   buttonColor: const Color.fromARGB(247, 0, 51, 122),
                 ),
+
+                
+/* REGISTRO CONDUCTOR - QUITAR COMENTARIO PARA REGISTRO
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -284,6 +288,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+*/
+
                 const SizedBox(height: 50),
               ],
             ),
@@ -292,4 +298,5 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+  
 }
