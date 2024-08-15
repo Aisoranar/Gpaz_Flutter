@@ -55,7 +55,7 @@ class _SecondTabState extends State<SecondTab> {
         final marker = _markers.firstWhere(
           (m) => m.markerId.value == widget.markerId,
           orElse: () =>
-              Marker(markerId: MarkerId('dummy'), position: LatLng(0, 0)),
+              const Marker(markerId: MarkerId('dummy'), position: LatLng(0, 0)),
         );
         if (marker.markerId.value != 'dummy') {
           _mapController.animateCamera(

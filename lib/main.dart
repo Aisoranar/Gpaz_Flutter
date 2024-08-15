@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:unipaz/firebase_options.dart';
 import 'package:unipaz/selectoption.dart';
 import 'package:unipaz/pages/start_page.dart';
-import 'package:unipaz/notifications/notificationsManager.dart';
+import 'package:unipaz/notifications/notifications_manager.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:unipaz/conductor/mapconductor.dart';
 import 'package:flutter_background/flutter_background.dart';
 
 void main() async {
@@ -20,7 +19,7 @@ void main() async {
   const androidConfig = FlutterBackgroundAndroidConfig(
     notificationTitle: "App activa en segundo plano",
     notificationText: "La ubicación está activa en segundo plano.",
-    notificationImportance: AndroidNotificationImportance.Default,
+    notificationImportance: AndroidNotificationImportance.normal,
     notificationIcon: AndroidResource(name: 'app_icon', defType: 'drawable'),
   );
 
@@ -45,7 +44,7 @@ class MyApp extends StatelessWidget {
   final bool isFirstLaunch;
   final User? currentUser;
 
-  const MyApp({Key? key, required this.isFirstLaunch, required this.currentUser}) : super(key: key);
+  const MyApp({super.key, required this.isFirstLaunch, required this.currentUser});
 
   @override
   Widget build(BuildContext context) {

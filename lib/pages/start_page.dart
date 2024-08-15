@@ -7,7 +7,7 @@ import 'package:unipaz/selectoption.dart';
 class StartPage extends StatelessWidget {
   final bool fromHomePage;
   
-  const StartPage({Key? key, this.fromHomePage = false}) : super(key: key);
+  const StartPage({super.key, this.fromHomePage = false});
 
   @override
   Widget build(BuildContext context) {

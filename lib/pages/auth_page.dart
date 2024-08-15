@@ -4,7 +4,7 @@ import 'package:unipaz/home_page.dart';
 import 'package:unipaz/pages/login_page.dart';
 
 class AuthPage extends StatelessWidget {
-  const AuthPage({Key? key}) : super(key: key);
+  const AuthPage({super.key});
 
   @override
   Widget build(BuildContext context) {

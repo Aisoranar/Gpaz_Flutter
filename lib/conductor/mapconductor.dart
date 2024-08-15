@@ -4,11 +4,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:unipaz/conductor/profileconductor.dart';
 import 'package:unipaz/selectoption.dart';
-import 'package:unipaz/notifications/notificationsManager.dart';
+import 'package:unipaz/notifications/notifications_manager.dart';
 
 class MapConductor extends StatefulWidget {
   const MapConductor({super.key});
@@ -375,16 +374,14 @@ class _MapConductorState extends State<MapConductor> {
         }
 
         // Cancelar la suscripción a la ubicación
-        if (_locationSubscription != null) {
-          await _locationSubscription.cancel();
-        }
-
+        await _locationSubscription.cancel();
+      
         // Cerrar sesión en Firebase
         await FirebaseAuth.instance.signOut();
 
         // Redirigir al usuario a SelectOption
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => SelectOption()),
+          MaterialPageRoute(builder: (context) => const SelectOption()),
         );
       }
     }
@@ -419,10 +416,6 @@ class _MapConductorState extends State<MapConductor> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-              ),
-              child: const Text(
-                'Activar Notificación',
-                style: TextStyle(color: Colors.white),
               ),
             ),
             Positioned(
