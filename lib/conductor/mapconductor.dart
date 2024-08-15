@@ -4,16 +4,16 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:unipaz/conductor/profileconductor.dart';
 import 'package:unipaz/selectoption.dart';
-import 'package:unipaz/notifications/notificationsManager.dart';
+import 'package:unipaz/notifications/notifications_manager.dart';
 
 class MapConductor extends StatefulWidget {
   const MapConductor({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MapConductorState createState() => _MapConductorState();
 }
 
@@ -100,30 +100,25 @@ class _MapConductorState extends State<MapConductor> {
         if (snapshot.docs.isNotEmpty) {
           final newMarkers = <Marker>{};
           for (var doc in snapshot.docs) {
-            final data = doc.data() as Map<String, dynamic>;
-            if (data != null) {
-              final LatLng position = LatLng(data['latitude'], data['longitude']);
-              final String plate = data['plate'] ?? 'Placa no disponible';
-              final String message = data['message'] ?? '';
-              final double heading = data['heading'] ?? 0.0;
+            final data = doc.data(); // Conversión explícita
+            final LatLng position = LatLng(data['latitude'], data['longitude']);
+            final String plate = data['plate'] ?? 'Placa no disponible';
+            final String message = data['message'] ?? ''; // Leer el mensaje de la notificación
+            final double heading = data['heading'] ?? 0.0;
 
-              newMarkers.add(
-                Marker(
-                  markerId: MarkerId(doc.id),
-                  position: position,
-                  infoWindow: InfoWindow(
-                    title: 'Placa $plate',
-                    snippet: message,
-                  ),
-                  icon: _customIcon,
-                  rotation: heading,
+            newMarkers.add(
+              Marker(
+                markerId: MarkerId(doc.id),
+                position: position,
+                infoWindow: InfoWindow(
+                  title: 'Placa $plate',
+                  snippet: message, // Mostrar el mensaje de la notificación aquí
                 ),
-              );
-            }
-          }
-
-          newMarkers.addAll(_createMarkers()); // Agregar los puntos de parada
-
+                icon: _customIcon, // Usar el ícono personalizado
+                rotation: heading, // Rotar el ícono
+              ),
+            );
+                    }
           setState(() {
             _markers.clear();
             _markers.addAll(newMarkers);
@@ -379,16 +374,14 @@ class _MapConductorState extends State<MapConductor> {
         }
 
         // Cancelar la suscripción a la ubicación
-        if (_locationSubscription != null) {
-          await _locationSubscription.cancel();
-        }
-
+        await _locationSubscription.cancel();
+      
         // Cerrar sesión en Firebase
         await FirebaseAuth.instance.signOut();
 
         // Redirigir al usuario a SelectOption
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => SelectOption()),
+          MaterialPageRoute(builder: (context) => const SelectOption()),
         );
       }
     }
@@ -418,47 +411,10 @@ class _MapConductorState extends State<MapConductor> {
                   MaterialPageRoute(builder: (context) => const ProfileConductor()),
                 );
               },
-            ),
-            IconButton(
-              icon: const Icon(Icons.logout, color: Colors.white),
-              onPressed: _logout,
-            ),
-          ],
-          // Se eliminó el botón de retroceso
-        ),
-        body: Stack(
-          children: [
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _currentPosition,
-                zoom: 14,
-              ),
-              markers: _markers,
-              onMapCreated: (GoogleMapController controller) {
-                _mapController = controller;
-                _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 14));
-              },
-            ),
-            
-            Positioned(
-              bottom: 140,
-              left: 20,
-              child: ElevatedButton.icon(
-                onPressed: _toggleTracking,
-                icon: Icon(
-                  _isTracking ? Icons.location_off : Icons.location_on,
-                  color: Colors.white,
-                ),
-                label: Text(
-                  _isTracking ? 'Apagar Ubicación' : 'Activar Ubicación',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isTracking ? Colors.red : Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 0, 51, 122),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ),

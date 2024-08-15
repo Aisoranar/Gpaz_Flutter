@@ -7,20 +7,20 @@ import 'package:unipaz/selectoption.dart';
 class StartPage extends StatelessWidget {
   final bool fromHomePage;
   
-  const StartPage({Key? key, this.fromHomePage = false}) : super(key: key);
+  const StartPage({super.key, this.fromHomePage = false});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(247, 255, 255, 255),
+        backgroundColor: const Color.fromARGB(247, 255, 255, 255),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.rectangle,
                 image: DecorationImage(
                   image: AssetImage('Assets/icon/white.png'),
@@ -31,7 +31,7 @@ class StartPage extends StatelessWidget {
             Container(
               width: 50,
               height: 50,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.rectangle,
                 image: DecorationImage(
                   image: AssetImage('Assets/icon/unipaz.png'),
@@ -72,12 +72,12 @@ class StartPage extends StatelessWidget {
           if (fromHomePage) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()),
+              MaterialPageRoute(builder: (context) => const HomePage()),
             );
           } else {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => SelectOption()),
+              MaterialPageRoute(builder: (context) => const SelectOption()),
             );
           }
         },
@@ -87,12 +87,12 @@ class StartPage extends StatelessWidget {
           if (fromHomePage) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()),
+              MaterialPageRoute(builder: (context) => const HomePage()),
             );
           } else {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => SelectOption()),
+              MaterialPageRoute(builder: (context) => const SelectOption()),
             );
           }
         },
@@ -115,20 +115,20 @@ class StartPage extends StatelessWidget {
             if (fromHomePage) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage()),
+                MaterialPageRoute(builder: (context) => const HomePage()),
               );
             } else {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => SelectOption()),
+                MaterialPageRoute(builder: (context) => const SelectOption()),
               );
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromARGB(247, 0, 51, 122),
-            minimumSize: Size(120, 40),
+            backgroundColor: const Color.fromARGB(247, 0, 51, 122),
+            minimumSize: const Size(120, 40),
           ),
-          child: Text(
+          child: const Text(
             "GO",
             style: TextStyle(
               color: Colors.white,

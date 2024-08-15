@@ -55,7 +55,7 @@ class _SecondTabState extends State<SecondTab> {
         final marker = _markers.firstWhere(
           (m) => m.markerId.value == widget.markerId,
           orElse: () =>
-              Marker(markerId: MarkerId('dummy'), position: LatLng(0, 0)),
+              const Marker(markerId: MarkerId('dummy'), position: LatLng(0, 0)),
         );
         if (marker.markerId.value != 'dummy') {
           _mapController.animateCamera(
@@ -356,117 +356,94 @@ class _SecondTabState extends State<SecondTab> {
     return markers;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // Permitir retroceso solo si el botón de regreso está visible
-        return widget.showBackButton;
-      },
-      child: Scaffold(
-        appBar: widget.showBackButton
-            ? AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              )
-            : null,
-        body: Stack(
-          children: [
-            _iconsLoaded
-                ? GoogleMap(
-                    onMapCreated: (GoogleMapController controller) {
-                      _mapController = controller;
-                      if (widget.markerId != null) {
-                        final marker = _markers.firstWhere(
-                          (m) => m.markerId.value == widget.markerId,
-                          orElse: () => Marker(
-                              markerId: MarkerId('dummy'),
-                              position: LatLng(0, 0)),
-                        );
-                        if (marker.markerId.value != 'dummy') {
-                          _mapController.animateCamera(
-                            CameraUpdate.newLatLngZoom(marker.position, 16), // Centrar y hacer zoom en el marcador
-                          );
-                          // Seleccionar el marcador para mostrar el InfoWindow
-                          _mapController.showMarkerInfoWindow(marker.markerId);
-                        }
-                      }
-                    },
-                    initialCameraPosition: CameraPosition(
-                      target: _initialPosition,
-                      zoom: 14,
-                    ),
-                    markers: _markers.union(_userMarkers),
-                    polylines: _polylines,
-                    onCameraMove: (position) {
-                      _saveLastMapPosition(position.target);
-                    },
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    gestureRecognizers: Set()
-                      ..add(
-                        Factory<PanGestureRecognizer>(
-                          () => PanGestureRecognizer(),
-                        ),
-                      ),
-                  )
-                : Center(child: CircularProgressIndicator()),
-            Positioned(
-              bottom: 520,
-              left: 10,
-              right: 70,
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                      blurRadius: 6,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Distancia a la siguiente parada: $_distance',
-                      style: TextStyle(
-                        backgroundColor: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.black87,
+@override
+Widget build(BuildContext context) {
+  // ignore: deprecated_member_use
+  return WillPopScope(
+    onWillPop: () async {
+      // Show a dialog or any other action to prevent changing the tab
+      return false; // Prevent the pop action
+    },
+    child: Scaffold(
+      body: Stack(
+        children: [
+          _iconsLoaded
+              ? GoogleMap(
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController = controller;
+                  },
+                  initialCameraPosition: const CameraPosition(
+                    target: _initialPosition,
+                    zoom: 14,
+                  ),
+                  markers: _markers.union(_userMarkers),
+                  polylines: _polylines,
+                  onCameraMove: (position) {
+                    _saveLastMapPosition(position.target);
+                  },
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{}
+                    ..add(
+                      Factory<PanGestureRecognizer>(
+                        () => PanGestureRecognizer(),
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Tiempo estimado: $_duration',
-                      style: TextStyle(
-                        backgroundColor: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
+                )
+              : const Center(child: CircularProgressIndicator()),
+          Positioned(
+            bottom: 520,
+            left: 10,
+            right: 70,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 2),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Distancia a la siguiente parada: $_distance',
+                    style: const TextStyle(
+                      backgroundColor: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Conductor Cercano: $_nextStop',
-                      style: TextStyle(
-                        backgroundColor: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tiempo estimado: $_duration',
+                    style: const TextStyle(
+                      backgroundColor: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Conductor Cercano: $_nextStop',
+                    style: const TextStyle(
+                      backgroundColor: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+      )],
         ),
       ),
     );

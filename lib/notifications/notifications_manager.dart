@@ -11,30 +11,31 @@ class NotificationsManager {
   Future<void> _initializeNotifications(BuildContext context) async {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    InitializationSettings initializationSettings = const InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   Future<void> showNotification(String title, String message) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'location_channel', // Identificador único del canal
-      'Ubicación Activa', // Nombre del canal
-      'Notificación que indica que la ubicación está activa en segundo plano.', // Descripción del canal
-      importance: Importance.high,
-      priority: Priority.high,
-      ongoing: false, // Hace que la notificación no sea persistente
-      ticker: 'ticker',
-      playSound: true,
-      enableVibration: true,
-      // La clave aquí es utilizar `flags` dentro de `PendingIntent`
-      fullScreenIntent: true,
-      category: 'service',
-    );
+          'location_channel', // Identificador único del canal
+          'Ubicación Activa', // Nombre del canal
+          channelDescription: 'Notificación que indica que la ubicación está activa en segundo plano.', // Descripción del canal
+          importance: Importance.high,
+          priority: Priority.high,
+          ongoing: false, // Hace que la notificación no sea persistente
+          ticker: 'ticker',
+          playSound: true,
+          enableVibration: true,
+          // La clave aquí es utilizar `flags` dentro de `PendingIntent`
+          fullScreenIntent: true,
+          // category: 'service',
+        );
 
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);

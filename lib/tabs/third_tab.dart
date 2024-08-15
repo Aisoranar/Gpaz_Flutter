@@ -268,7 +268,6 @@ class RouteDescriptionScreen extends StatelessWidget {
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () => _navigateToMap(context, title),
-                child: const Text('Ver en el mapa'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: const Color.fromARGB(247, 0, 51, 122),
@@ -276,6 +275,7 @@ class RouteDescriptionScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
+                child: const Text('Ver en el mapa'),
               ),
             ],
           ),
